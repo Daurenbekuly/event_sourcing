@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/alibi
+    username: alibi
+    password: alibi
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 25
+      maximum-pool-size: 100
+      idle-timeout: 60000
+      leak-detection-threshold: 30000
+      max-lifetime: 25000
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  tomcat:
+    threads:
+      max: 1000
+      min-spare: 400
+    connection-timeout: 60000
+  port: 8088
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+
+app:
+  s:
+    1:
+      from:
+      to: direct:step2
+      eh-from: direct:step1eh
+    2:
+      from: direct:step2
+      eh-from: direct:step2eh
+      eh-to: direct:step1eh
+    kafka-path: kafka:es-topic?brokers=localhost:29092
+    def:
+      exception-max-re-count: 5
+      exception-re-delay: 5000
