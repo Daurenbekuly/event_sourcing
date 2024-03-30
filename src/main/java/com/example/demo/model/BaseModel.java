@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import com.example.demo.entity.StepEntity;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.Stack;
@@ -41,6 +43,18 @@ public record BaseModel(
                 new Stack<>());
     }
 
+    public BaseModel(UUID uuid, Long sashokId, String name, String receiverName, String jsonValue, Map<String, UUID> map) {
+        this(uuid,
+                sashokId,
+                name,
+                receiverName,
+                jsonValue,
+                Instant.now(),
+                5,
+                map,
+                new Stack<>());
+    }
+
     public BaseModel(BaseModel baseModel, Long sashokId) {
         this(UUID.randomUUID(),
                 sashokId,
@@ -54,7 +68,7 @@ public record BaseModel(
     }
 
     public BaseModel(BaseModel baseModel, String receiver, Stack<String> mainRoadSteps) {
-        this(UUID.randomUUID(),
+        this(baseModel.stepId,
                 baseModel.sashokId,
                 baseModel.name,
                 receiver,
@@ -66,7 +80,7 @@ public record BaseModel(
     }
 
     public BaseModel(BaseModel baseModel, String receiver) {
-        this(UUID.randomUUID(),
+        this(baseModel.stepId,
                 baseModel.sashokId,
                 baseModel.name,
                 receiver,

@@ -15,12 +15,12 @@ public class InitSubProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        String receiver = exchange.getIn().getHeader(RECEIVER, String.class);
-        String correlation = exchange.getIn().getHeader(MAIN_ROUTE_RECEIVER, String.class);
+        String subRouteReceiver = exchange.getIn().getHeader(RECEIVER, String.class);
+        String mainRouteReceiver = exchange.getIn().getHeader(MAIN_ROUTE_RECEIVER, String.class);
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
-        baseModel.mainRoadSteps().add(correlation);
-        BaseModel newBaseModel = new BaseModel(baseModel, receiver);
+        baseModel.mainRoadSteps().push(mainRouteReceiver);
+        BaseModel newBaseModel = new BaseModel(baseModel, subRouteReceiver);
         String json = JsonUtil.toJson(newBaseModel).orElseThrow();
         exchange.getIn().setBody(json);
     }

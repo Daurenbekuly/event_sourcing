@@ -13,10 +13,10 @@ import java.util.UUID;
 @Table(value = "step")
 public class StepEntity {
 
-    @PrimaryKeyColumn(value = "step_id", type = PrimaryKeyType.CLUSTERED)
-    private UUID stepId;
-    @PrimaryKeyColumn(value = "sashok_id", type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(value = "sashok_id", type = PrimaryKeyType.CLUSTERED)
     private Long sashokId;
+    @PrimaryKeyColumn(value = "step_id", type = PrimaryKeyType.PARTITIONED)
+    private UUID stepId;
     @Column(value = "name")
     private String name;
     @Column(value = "receiver_name")
@@ -28,6 +28,8 @@ public class StepEntity {
     @Column(value = "retry_count")
     private Integer retryCount;
 
+    public StepEntity() {
+    }
 
     public StepEntity(UUID stepId,
                       Long sashokId,

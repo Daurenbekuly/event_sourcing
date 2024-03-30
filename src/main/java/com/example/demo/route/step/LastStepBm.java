@@ -4,6 +4,7 @@ import org.apache.camel.Exchange;
 
 import static com.example.demo.route.common.Constant.BACK_TO_MAIN_ROUTE_PROCESSOR;
 import static com.example.demo.route.common.Constant.KAFKA_PATH;
+import static com.example.demo.route.common.Constant.LAST_STEP_PROCESSOR;
 
 public class LastStepBm extends SashOkStepBuilder {
 
@@ -23,6 +24,7 @@ public class LastStepBm extends SashOkStepBuilder {
                 .process(BACK_TO_MAIN_ROUTE_PROCESSOR)
                 .choice()
                 .when(Exchange::isRouteStop)
+                .process(LAST_STEP_PROCESSOR)
                 .end()
                 .to(KAFKA_PATH)
                 .end();

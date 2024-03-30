@@ -1,5 +1,6 @@
 package com.example.demo.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.logging.log4j.*;
@@ -26,6 +27,16 @@ public class JsonUtil {
             return Optional.of(result);
         } catch (Exception e) {
             log.error("Json write value error: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public static <T> Optional<T> toCollection(String json, TypeReference<T> typeReference) {
+        try {
+            T result = objectMapper.readValue(json, typeReference);
+            return Optional.of(result);
+        } catch (Exception e) {
+            log.error("Json read value error: {}", e.getMessage());
             return Optional.empty();
         }
     }

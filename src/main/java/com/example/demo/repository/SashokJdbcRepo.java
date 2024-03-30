@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.BaseModel;
+import com.example.demo.util.JsonUtil;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Stack;
 
 @Repository
 public class SashokJdbcRepo {
@@ -18,7 +21,6 @@ public class SashokJdbcRepo {
         this.template = template;
     }
 
-    @Transactional
     public Long create(BaseModel baseModel) {
         String sequenceId = """
                 SELECT nextval('sashok_id_seq')
@@ -39,10 +41,11 @@ public class SashokJdbcRepo {
 
     @Transactional
     public void error(BaseModel baseModel, Exception exception) {
+        String road = JsonUtil.toJson(baseModel.road()).orElseThrow();
         Map<String, Object> sashokMap = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
-                "road", baseModel.road().toString(),
+                "road", road,
                 "end_date", LocalDateTime.now());
         String sashokSql = """
                 update sashok
@@ -66,12 +69,12 @@ public class SashokJdbcRepo {
         template.update(errorMessageSql, errorMessageMap);
     }
 
-    @Transactional
     public void dene(BaseModel baseModel) {
+        String road = JsonUtil.toJson(baseModel.road()).orElseThrow();
         Map<String, Object> map = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
-                "road", baseModel.road().toString(),
+                "road", road,
                 "end_date", LocalDateTime.now());
         String sql = """
                 update sashok
@@ -82,5 +85,11 @@ public class SashokJdbcRepo {
                 where id = :id;
                 """;
         template.update(sql, map);
+    }
+
+    public Optional<String> findRoadById(Long sashokId) {
+        var sql = "SELECT road FROM post WHERE id = :sashokId";
+        String road = template.queryForObject(sql, Map.of("sashokId", sashokId), String.class);
+        return Optional.ofNullable(road);
     }
 }
