@@ -1,8 +1,10 @@
 package com.example.demo.entity;
 
-import com.example.demo.model.Step;
+import com.example.demo.model.BaseModel;
+import org.springframework.data.cassandra.core.cql.Ordering;
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.Instant;
@@ -11,45 +13,46 @@ import java.util.UUID;
 @Table(value = "step")
 public class StepEntity {
 
-    @PrimaryKey(value = "step_id")
+    @PrimaryKeyColumn(value = "step_id", type = PrimaryKeyType.CLUSTERED)
     private UUID stepId;
+    @PrimaryKeyColumn(value = "sashok_id", type = PrimaryKeyType.PARTITIONED)
+    private Integer sashokId;
     @Column(value = "name")
     private String name;
     @Column(value = "receiver_name")
     private String receiverName;
     @Column(value = "json_value")
     private String jsonValue;
-    @Column(value = "stat_date")
-    private Instant statDate;
+    @PrimaryKeyColumn(value = "create_date", type = PrimaryKeyType.PARTITIONED, ordering = Ordering.DESCENDING)
+    private Instant createDate;
     @Column(value = "retry_count")
     private Integer retryCount;
 
 
-    public StepEntity(UUID stepId, String name, String receiverName, String jsonValue, Instant statDate, Integer retryCount) {
+    public StepEntity(UUID stepId,
+                      Integer sashokId,
+                      String name,
+                      String receiverName,
+                      String jsonValue,
+                      Instant createDate,
+                      Integer retryCount) {
         this.stepId = stepId;
+        this.sashokId = sashokId;
         this.name = name;
         this.receiverName = receiverName;
         this.jsonValue = jsonValue;
-        this.statDate = statDate;
+        this.createDate = createDate;
         this.retryCount = retryCount;
     }
 
-    public StepEntity(Step step) {
-        this.stepId = UUID.randomUUID();
-        this.name = step.name();
-        this.receiverName = step.receiverName();
-        this.jsonValue = step.jsonValue();
-        this.statDate = step.statDate();
-        this.retryCount = step.retryCount();
-    }
-
-    public StepEntity(UUID uuid, Step step, Integer availableTryCount) {
-        this.stepId = uuid;
-        this.name = step.name();
-        this.receiverName = step.receiverName();
-        this.jsonValue = step.jsonValue();
-        this.statDate = step.statDate();
-        this.retryCount = availableTryCount;
+    public StepEntity(BaseModel baseModel) {
+        this.stepId = baseModel.stepId();
+        this.sashokId = baseModel.sashokId();
+        this.name = baseModel.name();
+        this.receiverName = baseModel.receiverName();
+        this.jsonValue = baseModel.jsonValue();
+        this.createDate = baseModel.createDate();
+        this.retryCount = baseModel.retryCount();
     }
 
     public UUID getStepId() {
@@ -58,6 +61,14 @@ public class StepEntity {
 
     public void setStepId(UUID stepId) {
         this.stepId = stepId;
+    }
+
+    public Integer getSashokId() {
+        return sashokId;
+    }
+
+    public void setSashokId(Integer sashokId) {
+        this.sashokId = sashokId;
     }
 
     public String getName() {
@@ -84,12 +95,12 @@ public class StepEntity {
         this.jsonValue = jsonValue;
     }
 
-    public Instant getStatDate() {
-        return statDate;
+    public Instant getCreateDate() {
+        return createDate;
     }
 
-    public void setStatDate(Instant statDate) {
-        this.statDate = statDate;
+    public void setCreateDate(Instant createDate) {
+        this.createDate = createDate;
     }
 
     public Integer getRetryCount() {

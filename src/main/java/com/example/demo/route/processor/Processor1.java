@@ -1,6 +1,6 @@
-package com.example.demo.v2.route.vertical1.processor;
+package com.example.demo.route.processor;
 
-import com.example.demo.v2.route.sashok_processor.SashOkProcessor;
+import com.example.demo.route.sashok_processor.SashOkProcessor;
 import org.springframework.stereotype.Service;
 
 @Service

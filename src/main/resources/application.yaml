@@ -29,16 +29,7 @@ logging:
         web: DEBUG
 
 app:
-  s:
-    1:
-      from:
-      to: direct:step2
-      eh-from: direct:step1eh
-    2:
-      from: direct:step2
-      eh-from: direct:step2eh
-      eh-to: direct:step1eh
-    kafka-path: kafka:es-topic?brokers=localhost:29092
-    def:
-      exception-max-re-count: 5
-      exception-re-delay: 5000
+  kafka:
+    topic: sashok-topic
+    step-group: step_group_id
+    cassandra-group: cassandra_group_id

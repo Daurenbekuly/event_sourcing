@@ -1,8 +1,9 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.Step;
+import com.example.demo.model.BaseModel;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,11 +17,29 @@ public class SashokJdbcRepo {
         this.client = client;
     }
 
-
-    public void create(Step step) {
+    public Integer create(BaseModel baseModel) {
         LocalDateTime now = LocalDateTime.now();
-        client.sql("insert into sashok(id, json_value, road, stat_date) values (DEFAULT, ?, ?, ?)")
-                .params(List.of(step.jsonValue(), step.road().toString(), now))
+        return client.sql("insert into sashok(id, json_value, start_date, status) values (DEFAULT, ?, ?, ?)")
+                .params(List.of(baseModel.jsonValue(), now, "ACTIVE"))
+                .update();
+    }
+
+    @Transactional
+    public void error(BaseModel baseModel) {
+        LocalDateTime now = LocalDateTime.now();
+        int sashOkId = client.sql("insert into sashok(id, json_value, road, end_date, status) values (DEFAULT, ?, ?, ?, ?)")
+                .params(List.of(baseModel.jsonValue(), baseModel.road().toString(), now, "ERROR"))
+                .update();
+
+        client.sql("insert into error_message(id, sashok_id, message, stack_trace) values (DEFAULT, ?, ?, ?)")
+                .params(List.of(baseModel.jsonValue(), baseModel.road().toString(), now, "ERROR"))
+                .update();
+    }
+
+    public void dene(BaseModel baseModel) {
+        LocalDateTime now = LocalDateTime.now();
+        client.sql("insert into sashok(id, json_value, road, end_date, status) values (DEFAULT, ?, ?, ?, ?)")
+                .params(List.of(baseModel.jsonValue(), baseModel.road().toString(), now, "SUCCESS"))
                 .update();
     }
 }
