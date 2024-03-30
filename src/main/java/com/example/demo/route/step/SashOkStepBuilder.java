@@ -1,4 +1,4 @@
-package com.example.demo.route.step.common;
+package com.example.demo.route.step;
 
 import com.example.demo.entity.StepEntity;
 import com.example.demo.model.BaseModel;
@@ -19,9 +19,9 @@ import static org.apache.camel.Exchange.REDELIVERY_MAX_COUNTER;
 public abstract class SashOkStepBuilder extends RouteBuilder {
 
     public String exceptionHandler = "direct:defErrorHandler";
-    public Integer maximumRedeliveries = 5;
+    public Integer maximumRedeliveries = 2;
     public Double exceptionBackOffMultiplier = 2.0;
-    public Integer redeliveryDelay = 5000;
+    public Integer redeliveryDelay = 1000;
 
     @Autowired
     private StepRepository stepRepository;
@@ -45,10 +45,9 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
                 .useExponentialBackOff()
                 .onRedelivery(this::reduceRetryCount)
                 .logRetryAttempted(true)
-                .handled(true)
                 .log("Message Exhausted after " + maximumRedeliveries + " retries...")
-                .log("Handling error: ${exception}")
                 .process(EXCEPTION_HANDLER_PROCESSOR)
+                .handled(true)
                 .end();
 
         declareStep();

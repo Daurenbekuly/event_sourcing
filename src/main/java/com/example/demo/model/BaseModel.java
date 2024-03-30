@@ -1,14 +1,13 @@
 package com.example.demo.model;
 
 import java.time.Instant;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
 
 public record BaseModel(
         UUID stepId,
-        Integer sashokId,
+        Long sashokId,
         String name,
         String receiverName,
         String jsonValue,
@@ -32,7 +31,7 @@ public record BaseModel(
 
     public BaseModel(UUID uuid, String name, String receiverName, String jsonValue, Map<String, UUID> map) {
         this(uuid,
-                null,
+                0L,
                 name,
                 receiverName,
                 jsonValue,
@@ -42,7 +41,7 @@ public record BaseModel(
                 new Stack<>());
     }
 
-    public BaseModel(BaseModel baseModel, Integer sashokId) {
+    public BaseModel(BaseModel baseModel, Long sashokId) {
         this(UUID.randomUUID(),
                 sashokId,
                 baseModel.name,
@@ -81,7 +80,7 @@ public record BaseModel(
     public BaseModel(BaseModel baseModel, UUID uuid, String receiver, String jsonValue, Map<String, UUID> road) {
         this(uuid,
                 baseModel.sashokId,
-                baseModel.name,
+                baseModel.receiverName,
                 receiver,
                 jsonValue,
                 Instant.now(),

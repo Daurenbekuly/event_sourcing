@@ -1,45 +1,86 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.BaseModel;
-import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
 
 @Repository
 public class SashokJdbcRepo {
 
-    private final JdbcClient client;
+    private final NamedParameterJdbcTemplate template;
 
-    public SashokJdbcRepo(JdbcClient client) {
-        this.client = client;
+    public SashokJdbcRepo(NamedParameterJdbcTemplate template) {
+        this.template = template;
     }
 
-    public Integer create(BaseModel baseModel) {
-        LocalDateTime now = LocalDateTime.now();
-        return client.sql("insert into sashok(id, json_value, start_date, status) values (DEFAULT, ?, ?, ?)")
-                .params(List.of(baseModel.jsonValue(), now, "ACTIVE"))
-                .update();
+    @Transactional
+    public Long create(BaseModel baseModel) {
+        String sequenceId = """
+                SELECT nextval('sashok_id_seq')
+                """;
+        Long sashokId = template.queryForObject(sequenceId, Map.of(), Long.class);
+
+        Map<String, Object> map = Map.of(
+                "id", sashokId,
+                "json_variable", baseModel.jsonValue(),
+                "start_date", LocalDateTime.now());
+        String sql = """
+                insert into sashok(id, json_variable, start_date, status) 
+                values (:id, :json_variable, :start_date, 'ACTIVE')
+                """;
+        template.update(sql, map);
+        return sashokId;
     }
 
     @Transactional
     public void error(BaseModel baseModel, Exception exception) {
-        LocalDateTime now = LocalDateTime.now();
-        client.sql("insert into sashok(id, json_value, road, end_date, status) values (?, ?, ?, ?, ?)")
-                .params(List.of(baseModel.sashokId(), baseModel.jsonValue(), baseModel.road().toString(), now, "ERROR"))
-                .update();
+        Map<String, Object> sashokMap = Map.of(
+                "id", baseModel.sashokId(),
+                "json_variable", baseModel.jsonValue(),
+                "road", baseModel.road().toString(),
+                "end_date", LocalDateTime.now());
+        String sashokSql = """
+                update sashok
+                set json_variable = :json_variable,
+                    road = :road,
+                    end_date = :end_date,
+                    status = 'ERROR'
+                where id = :id;
+                """;
+        template.update(sashokSql, sashokMap);
 
-        client.sql("insert into error_message(id, sashok_id, message, stack_trace, create_date) values (DEFAULT, ?, ?, ?)")
-                .params(List.of(baseModel.sashokId(), exception.getMessage(), exception.getStackTrace(), now))
-                .update();
+        Map<String, Object> errorMessageMap = Map.of(
+                "sashok_id", baseModel.sashokId(),
+                "message", exception.getMessage(),
+                "stack_trace", Arrays.toString(exception.getStackTrace()),
+                "create_date", LocalDateTime.now());
+        String errorMessageSql = """
+                insert into error_message(id, sashok_id, message, stack_trace, create_date)
+                values (nextval('error_message_id_seq'), :sashok_id, :message, :stack_trace, :create_date);
+                """;
+        template.update(errorMessageSql, errorMessageMap);
     }
 
+    @Transactional
     public void dene(BaseModel baseModel) {
-        LocalDateTime now = LocalDateTime.now();
-        client.sql("insert into sashok(id, json_value, road, end_date, status) values (?, ?, ?, ?, ?)")
-                .params(List.of(baseModel.sashokId(), baseModel.jsonValue(), baseModel.road().toString(), now, "SUCCESS"))
-                .update();
+        Map<String, Object> map = Map.of(
+                "id", baseModel.sashokId(),
+                "json_variable", baseModel.jsonValue(),
+                "road", baseModel.road().toString(),
+                "end_date", LocalDateTime.now());
+        String sql = """
+                update sashok
+                set json_variable = :json_variable,
+                    road = :road,
+                    end_date = :end_date,
+                    status = 'SUCCESS'
+                where id = :id;
+                """;
+        template.update(sql, map);
     }
 }

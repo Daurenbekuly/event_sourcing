@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static com.example.demo.route.common.Constant.FIRST_STEP_PROCESSOR;
-import static java.util.Objects.isNull;
 
 @Service(FIRST_STEP_PROCESSOR)
 public class FirstStepProcessor implements Processor {
@@ -25,10 +24,10 @@ public class FirstStepProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
-        if (isNull(baseModel.sashokId())) {
-            Integer sashokId = sashokJdbcRepo.create(baseModel);
+        if (baseModel.sashokId() == 0) {
+            Long sashokId = sashokJdbcRepo.create(baseModel);
             BaseModel active = new BaseModel(baseModel, sashokId);
-            Optional<String> json = JsonUtil.toJson(active);
+            String json = JsonUtil.toJson(active).orElseThrow();
             exchange.getIn().setBody(json);
         }
     }

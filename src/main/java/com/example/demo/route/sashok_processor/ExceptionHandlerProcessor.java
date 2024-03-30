@@ -8,6 +8,7 @@ import org.apache.camel.Processor;
 import org.springframework.stereotype.Service;
 
 import static com.example.demo.route.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
+import static org.apache.camel.ExchangePropertyKey.EXCEPTION_CAUGHT;
 
 @Service(EXCEPTION_HANDLER_PROCESSOR)
 public class ExceptionHandlerProcessor implements Processor {
@@ -22,7 +23,7 @@ public class ExceptionHandlerProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
-        Exception exception = exchange.getException();
+        RuntimeException exception = exchange.getProperty(EXCEPTION_CAUGHT, RuntimeException.class);
         sashokJdbcRepo.error(baseModel, exception);
     }
 }

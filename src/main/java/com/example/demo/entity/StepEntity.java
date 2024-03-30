@@ -16,7 +16,7 @@ public class StepEntity {
     @PrimaryKeyColumn(value = "step_id", type = PrimaryKeyType.CLUSTERED)
     private UUID stepId;
     @PrimaryKeyColumn(value = "sashok_id", type = PrimaryKeyType.PARTITIONED)
-    private Integer sashokId;
+    private Long sashokId;
     @Column(value = "name")
     private String name;
     @Column(value = "receiver_name")
@@ -30,7 +30,7 @@ public class StepEntity {
 
 
     public StepEntity(UUID stepId,
-                      Integer sashokId,
+                      Long sashokId,
                       String name,
                       String receiverName,
                       String jsonValue,
@@ -63,11 +63,11 @@ public class StepEntity {
         this.stepId = stepId;
     }
 
-    public Integer getSashokId() {
+    public Long getSashokId() {
         return sashokId;
     }
 
-    public void setSashokId(Integer sashokId) {
+    public void setSashokId(Long sashokId) {
         this.sashokId = sashokId;
     }
 
