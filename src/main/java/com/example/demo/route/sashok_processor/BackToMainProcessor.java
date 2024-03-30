@@ -7,10 +7,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Stack;
 
-@Service(Constant.BACK_TO_MAIN_ROUTE)
+@Service(Constant.BACK_TO_MAIN_ROUTE_PROCESSOR)
 public class BackToMainProcessor implements Processor {
 
     @Override

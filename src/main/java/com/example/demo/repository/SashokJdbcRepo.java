@@ -25,21 +25,21 @@ public class SashokJdbcRepo {
     }
 
     @Transactional
-    public void error(BaseModel baseModel) {
+    public void error(BaseModel baseModel, Exception exception) {
         LocalDateTime now = LocalDateTime.now();
-        int sashOkId = client.sql("insert into sashok(id, json_value, road, end_date, status) values (DEFAULT, ?, ?, ?, ?)")
-                .params(List.of(baseModel.jsonValue(), baseModel.road().toString(), now, "ERROR"))
+        client.sql("insert into sashok(id, json_value, road, end_date, status) values (?, ?, ?, ?, ?)")
+                .params(List.of(baseModel.sashokId(), baseModel.jsonValue(), baseModel.road().toString(), now, "ERROR"))
                 .update();
 
-        client.sql("insert into error_message(id, sashok_id, message, stack_trace) values (DEFAULT, ?, ?, ?)")
-                .params(List.of(baseModel.jsonValue(), baseModel.road().toString(), now, "ERROR"))
+        client.sql("insert into error_message(id, sashok_id, message, stack_trace, create_date) values (DEFAULT, ?, ?, ?)")
+                .params(List.of(baseModel.sashokId(), exception.getMessage(), exception.getStackTrace(), now))
                 .update();
     }
 
     public void dene(BaseModel baseModel) {
         LocalDateTime now = LocalDateTime.now();
-        client.sql("insert into sashok(id, json_value, road, end_date, status) values (DEFAULT, ?, ?, ?, ?)")
-                .params(List.of(baseModel.jsonValue(), baseModel.road().toString(), now, "SUCCESS"))
+        client.sql("insert into sashok(id, json_value, road, end_date, status) values (?, ?, ?, ?, ?)")
+                .params(List.of(baseModel.sashokId(), baseModel.jsonValue(), baseModel.road().toString(), now, "SUCCESS"))
                 .update();
     }
 }

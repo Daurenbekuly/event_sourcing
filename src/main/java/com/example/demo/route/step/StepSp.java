@@ -3,7 +3,7 @@ package com.example.demo.route.step;
 import com.example.demo.route.step.common.SashOkStepBuilder;
 
 import static com.example.demo.route.common.Constant.MAIN_ROUTE_RECEIVER;
-import static com.example.demo.route.common.Constant.INIT_SUB_ROUTE;
+import static com.example.demo.route.common.Constant.INIT_SUB_ROUTE_PROCESSOR;
 import static com.example.demo.route.common.Constant.KAFKA_PATH;
 import static com.example.demo.route.common.Constant.RECEIVER;
 
@@ -30,7 +30,7 @@ public class StepSp extends SashOkStepBuilder {
                 .setHeader(RECEIVER, constant(subRouteReceiver))
                 .process(processor)
                 .setHeader(MAIN_ROUTE_RECEIVER, constant(mainRouteReceiver))
-                .process(INIT_SUB_ROUTE)
+                .process(INIT_SUB_ROUTE_PROCESSOR)
                 .to(KAFKA_PATH)
                 .end();
     }

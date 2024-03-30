@@ -7,12 +7,10 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-
 import static com.example.demo.route.common.Constant.MAIN_ROUTE_RECEIVER;
 import static com.example.demo.route.common.Constant.RECEIVER;
 
-@Service(Constant.INIT_SUB_ROUTE)
+@Service(Constant.INIT_SUB_ROUTE_PROCESSOR)
 public class InitSubProcessor implements Processor {
 
     @Override
