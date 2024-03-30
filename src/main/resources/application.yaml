@@ -5,11 +5,11 @@ spring:
     password: alibi
     driver-class-name: org.postgresql.Driver
     hikari:
-      minimum-idle: 25
-      maximum-pool-size: 100
-      idle-timeout: 60000
-      leak-detection-threshold: 30000
-      max-lifetime: 25000
+      minimum-idle: 50
+      maximum-pool-size: 200
+      idle-timeout: 120000
+      leak-detection-threshold: 60000
+      max-lifetime: 50000
   threads:
     virtual:
       enabled: true

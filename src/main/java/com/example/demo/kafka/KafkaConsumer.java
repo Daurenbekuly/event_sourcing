@@ -20,14 +20,14 @@ public class KafkaConsumer {
         this.stepRepository = stepRepository;
     }
 
-    @KafkaListener(topics = "${app.kafka.topic}", groupId = "${app.kafka.step-group}", concurrency = "1")
+    @KafkaListener(topics = "${app.kafka.topic}", groupId = "${app.kafka.step-group}", concurrency = "5")
     public void stepListener(String message) {
         var baseModel = JsonUtil.toObject(message, BaseModel.class)
                 .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
         template.asyncRequestBody(baseModel.receiverName(), message);
     }
 
-    @KafkaListener(topics = "${app.kafka.topic}", groupId = "${app.kafka.cassandra-group}", concurrency = "1")
+    @KafkaListener(topics = "${app.kafka.topic}", groupId = "${app.kafka.cassandra-group}", concurrency = "5")
     public void cassandraListener(String message) {
         var baseModel = JsonUtil.toObject(message, BaseModel.class)
                 .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
