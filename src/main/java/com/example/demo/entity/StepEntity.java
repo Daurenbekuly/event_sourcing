@@ -8,6 +8,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.Instant;
+import java.util.Stack;
 import java.util.UUID;
 
 @Table(value = "step")
@@ -27,6 +28,8 @@ public class StepEntity {
     private Instant createDate;
     @Column(value = "retry_count")
     private Integer retryCount;
+    @Column(value = "main_road_steps")
+    private Stack<String> mainRoadSteps;
 
     public StepEntity() {
     }
@@ -37,7 +40,8 @@ public class StepEntity {
                       String receiverName,
                       String jsonValue,
                       Instant createDate,
-                      Integer retryCount) {
+                      Integer retryCount,
+                      Stack<String> mainRoadSteps) {
         this.stepId = stepId;
         this.sashokId = sashokId;
         this.name = name;
@@ -45,6 +49,7 @@ public class StepEntity {
         this.jsonValue = jsonValue;
         this.createDate = createDate;
         this.retryCount = retryCount;
+        this.mainRoadSteps = mainRoadSteps;
     }
 
     public StepEntity(BaseModel baseModel) {
@@ -55,6 +60,7 @@ public class StepEntity {
         this.jsonValue = baseModel.jsonValue();
         this.createDate = baseModel.createDate();
         this.retryCount = baseModel.retryCount();
+        this.mainRoadSteps = baseModel.mainRoadSteps();
     }
 
     public UUID getStepId() {
@@ -111,5 +117,13 @@ public class StepEntity {
 
     public void setRetryCount(Integer retryCount) {
         this.retryCount = retryCount;
+    }
+
+    public Stack<String> getMainRoadSteps() {
+        return mainRoadSteps;
+    }
+
+    public void setMainRoadSteps(Stack<String> mainRoadSteps) {
+        this.mainRoadSteps = mainRoadSteps;
     }
 }
