@@ -1,5 +1,6 @@
 package com.example.demo.api;
 
+import com.example.demo.demo.ListNode;
 import com.example.demo.entity.StepEntity;
 import com.example.demo.model.BaseModel;
 import com.example.demo.repository.SashokJdbcRepo;
@@ -43,8 +44,10 @@ public class Api {
     }
 
     @PostMapping("/{name}")
-    public ResponseEntity<?> callProcess(@PathVariable("name") String jsonValue) {
+    public ResponseEntity<?> callProcess(@PathVariable("name") String value) {
         try {
+            ListNode listNode = new ListNode(value);
+            String jsonValue = JsonUtil.toJson(listNode).orElseThrow();
             Map<String, UUID> map = new HashMap<>();
             UUID uuid = UUID.randomUUID();
             map.put("direct:r1:s1", uuid);
@@ -68,6 +71,22 @@ public class Api {
             UUID uuid = UUID.randomUUID();
             road.put(stepTo, uuid);
             BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), road);
+            String json = JsonUtil.toJson(baseModel).orElseThrow();
+            template.asyncRequestBody(KAFKA_PATH, json);
+            return new ResponseEntity<>(OK);
+        } catch (Exception e) {
+            System.out.println("XDD");
+            return new ResponseEntity<>(e.getCause().getMessage(), OK);
+        }
+    }
+
+    @PostMapping("/{sashokId}/{stepId}/retry")
+    public ResponseEntity<?> retry(@PathVariable Long sashokId, @PathVariable UUID stepId) {
+        try {
+            String roadJson = sashokJdbcRepo.findRoadById(sashokId).orElseThrow();
+            StepEntity stepEntity = stepRepository.findByStepId(stepId).orElseThrow();
+            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            BaseModel baseModel = new BaseModel(stepEntity, road);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(KAFKA_PATH, json);
             return new ResponseEntity<>(OK);

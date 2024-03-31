@@ -44,6 +44,24 @@ logging:
 
 app:
   kafka:
-    topic: sashok-topic
-    step-group: step_group_id
-    cassandra-group: cassandra_group_id
+    topic:
+      sashok: sashok-topic
+      thirty-min-retry: thirty-min-retry-topic
+      one-hours-retry: one-hours-retry-topic
+      two-hour-retry: two-hour-retry-topic
+      four-hours-retry: four-hours-retry-topic
+      eight-hours-retry: eight-hours-retry-topic
+      sixteen-hours-retry: sixteen-hours-retry-topic
+      thirty-hours-retry: thirty-hours-retry-topic
+      five-days-retry: five-days-retry-topic
+    group:
+      step: step_group_id
+      cassandra: cassandra_group_id
+      thirty-min-retry: thirty-min-retry-group_id
+      one-hours-retry: one-hours-retry-group_id
+      two-hour-retry: two-hour-retry-group_id
+      four-hours-retry: four-hours-retry-group_id
+      eight-hours-retry: eight-hours-retry-group_id
+      sixteen-hours-retry: sixteen-hours-retry-group_id
+      thirty-hours-retry: thirty-hours-retry-group_id
+      five-days-retry: five-days-retry-group_id

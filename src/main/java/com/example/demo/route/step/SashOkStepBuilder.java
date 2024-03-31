@@ -2,12 +2,12 @@ package com.example.demo.route.step;
 
 import com.example.demo.entity.StepEntity;
 import com.example.demo.model.BaseModel;
-import com.example.demo.repository.SashokJdbcRepo;
 import com.example.demo.repository.StepRepository;
 import com.example.demo.util.JsonUtil;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +16,7 @@ import static com.example.demo.route.common.Constant.EXCEPTION_HANDLER_PROCESSOR
 import static org.apache.camel.Exchange.REDELIVERY_COUNTER;
 import static org.apache.camel.Exchange.REDELIVERY_MAX_COUNTER;
 
+@Component
 public abstract class SashOkStepBuilder extends RouteBuilder {
 
     public String exceptionHandler = "direct:defErrorHandler";
@@ -25,9 +26,6 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
 
     @Autowired
     private StepRepository stepRepository;
-
-    @Autowired
-    private SashokJdbcRepo sashokJdbcRepo;
 
     @Override
     public void configure() throws Exception {
@@ -45,7 +43,7 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
                 .useExponentialBackOff()
                 .onRedelivery(this::reduceRetryCount)
                 .logRetryAttempted(true)
-                .log("Message Exhausted after " + maximumRedeliveries + " retries...")
+                .log("Message Exhausted after " + maximumRedeliveries + " retries...") //todo if it has kafka retry send it to there
                 .process(EXCEPTION_HANDLER_PROCESSOR)
                 .handled(true)
                 .end();

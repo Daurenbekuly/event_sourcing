@@ -52,7 +52,7 @@ public record BaseModel(
                 Instant.now(),
                 5,
                 map,
-                new Stack<>());
+                new Stack<>()); //TODO main road
     }
 
     public BaseModel(BaseModel baseModel, Long sashokId) {
@@ -101,5 +101,14 @@ public record BaseModel(
                 5,
                 road,
                 baseModel.mainRoadSteps);
+    }
+
+    public BaseModel(StepEntity stepEntity, Map<String, UUID> road) {
+        this(stepEntity.getStepId(),
+                stepEntity.getSashokId(),
+                stepEntity.getName(),
+                stepEntity.getReceiverName(),
+                stepEntity.getJsonValue(),
+                road); //TODO save main road receiver
     }
 }

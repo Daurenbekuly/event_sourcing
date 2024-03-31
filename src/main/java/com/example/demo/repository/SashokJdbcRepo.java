@@ -1,7 +1,9 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.BaseModel;
+import com.example.demo.model.PGobject;
 import com.example.demo.util.JsonUtil;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Stack;
 
 @Repository
 public class SashokJdbcRepo {
@@ -33,7 +34,7 @@ public class SashokJdbcRepo {
                 "start_date", LocalDateTime.now());
         String sql = """
                 insert into sashok(id, json_variable, start_date, status) 
-                values (:id, :json_variable, :start_date, 'ACTIVE')
+                values (:id, :json_variable::JSONB, :start_date, 'ACTIVE')
                 """;
         template.update(sql, map);
         return sashokId;
@@ -49,7 +50,7 @@ public class SashokJdbcRepo {
                 "end_date", LocalDateTime.now());
         String sashokSql = """
                 update sashok
-                set json_variable = :json_variable,
+                set json_variable = :json_variable::JSONB,
                     road = :road,
                     end_date = :end_date,
                     status = 'ERROR'
@@ -78,7 +79,7 @@ public class SashokJdbcRepo {
                 "end_date", LocalDateTime.now());
         String sql = """
                 update sashok
-                set json_variable = :json_variable,
+                set json_variable = :json_variable::JSONB,
                     road = :road,
                     end_date = :end_date,
                     status = 'SUCCESS'
