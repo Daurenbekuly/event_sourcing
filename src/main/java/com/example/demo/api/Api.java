@@ -15,10 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Stack;
 import java.util.UUID;
 
 import static com.example.demo.route.common.Constant.KAFKA_PATH;
@@ -67,7 +66,7 @@ public class Api {
             String roadJson = sashokJdbcRepo.findRoadById(sashokId).orElseThrow();
             Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
             UUID stepId = road.get(stepFrom);
-            StepEntity stepEntity = stepRepository.findByStepId(stepId).orElseThrow();
+            StepEntity stepEntity = stepRepository.findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
             UUID uuid = UUID.randomUUID();
             road.put(stepTo, uuid);
             BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), road);
@@ -84,14 +83,14 @@ public class Api {
     public ResponseEntity<?> retry(@PathVariable Long sashokId, @PathVariable UUID stepId) {
         try {
             String roadJson = sashokJdbcRepo.findRoadById(sashokId).orElseThrow();
-            StepEntity stepEntity = stepRepository.findByStepId(stepId).orElseThrow();
+            StepEntity stepEntity = stepRepository.findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
             Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
             BaseModel baseModel = new BaseModel(stepEntity, road);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
-            template.asyncRequestBody(KAFKA_PATH, json);
+            template.asyncRequestBody(stepEntity.getName(), json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
-            System.out.println("XDD");
+            System.out.println(e);
             return new ResponseEntity<>(e.getCause().getMessage(), OK);
         }
     }

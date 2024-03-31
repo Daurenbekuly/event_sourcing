@@ -87,7 +87,7 @@ public class SashokJdbcRepo {
     }
 
     public Optional<String> findRoadById(Long sashokId) {
-        var sql = "SELECT road FROM post WHERE id = :sashokId";
+        var sql = "SELECT road FROM sashok WHERE id = :sashokId";
         String road = template.queryForObject(sql, Map.of("sashokId", sashokId), String.class);
         return Optional.ofNullable(road);
     }
