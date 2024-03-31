@@ -2,7 +2,6 @@ package com.example.demo.route.common;
 
 public interface Constant {
 
-    String KAFKA_PATH = "kafka:sashok-topic?brokers=localhost:29092";
     String MAIN_ROUTE_RECEIVER = "mainRouteReceiver";
     String RECEIVER = "receiver";
     String RECEIVERS = "receivers";

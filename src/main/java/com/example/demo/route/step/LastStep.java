@@ -9,6 +9,7 @@ public class LastStep extends SashOkStepBuilder {
 
     public LastStep(String name,
                     String processor) {
+        nameValidator(name);
         this.name = name;
         this.processor = processor;
     }

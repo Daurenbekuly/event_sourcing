@@ -109,7 +109,7 @@ public record BaseModel(
                 stepEntity.getName(),
                 stepEntity.getReceiverName(),
                 stepEntity.getJsonValue(),
-                Instant.now(),
+                stepEntity.getCreateDate(),
                 5,
                 road,
                 stepEntity.getMainRoadSteps());

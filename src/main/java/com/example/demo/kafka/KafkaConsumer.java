@@ -6,8 +6,6 @@ import com.example.demo.repository.StepRepository;
 import com.example.demo.util.JsonUtil;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.RetryableTopic;
-import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,7 +34,6 @@ public class KafkaConsumer {
         var stepEntity = new StepEntity(baseModel);
         stepRepository.save(stepEntity);
     }
-
 
     /*
     @KafkaListener(topics = "${app.kafka.topic.thirty-min-retry}", groupId = "${app.kafka.group.thirty-min-retry}")

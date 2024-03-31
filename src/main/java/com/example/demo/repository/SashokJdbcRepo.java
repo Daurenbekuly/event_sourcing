@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.model.BaseModel;
 import com.example.demo.util.JsonUtil;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,27 +16,20 @@ import java.util.Optional;
 public class SashokJdbcRepo {
 
     private final NamedParameterJdbcTemplate template;
+    private final SimpleJdbcInsert insert;
 
     public SashokJdbcRepo(NamedParameterJdbcTemplate template) {
         this.template = template;
+        this.insert = new SimpleJdbcInsert(template.getJdbcTemplate()).withTableName("sashok").usingGeneratedKeyColumns("id");
     }
 
     public Long create(BaseModel baseModel) {
-        String sequenceId = """
-                SELECT nextval('sashok_id_seq')
-                """;
-        Long sashokId = template.queryForObject(sequenceId, Map.of(), Long.class);
-
         Map<String, Object> map = Map.of(
-                "id", sashokId,
                 "json_variable", baseModel.jsonValue(),
-                "start_date", LocalDateTime.now());
-        String sql = """
-                insert into sashok(id, json_variable, start_date, status) 
-                values (:id, :json_variable::JSONB, :start_date, 'ACTIVE')
-                """;
-        template.update(sql, map);
-        return sashokId;
+                "start_date", LocalDateTime.now(),
+                "status", "ACTIVE");
+        Number id = insert.executeAndReturnKey(map);
+        return id.longValue();
     }
 
     @Transactional

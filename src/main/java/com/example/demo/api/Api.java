@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.example.demo.route.common.Constant.KAFKA_PATH;
+import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -49,14 +49,14 @@ public class Api {
             String jsonValue = JsonUtil.toJson(listNode).orElseThrow();
             Map<String, UUID> map = new HashMap<>();
             UUID uuid = UUID.randomUUID();
-            map.put("direct:r1:s1", uuid);
-            BaseModel baseModel = new BaseModel(uuid, "api:camel", "direct:r1:s1", jsonValue, map);
+            map.put("direct:r:1:s:1", uuid);
+            BaseModel baseModel = new BaseModel(uuid, "api:camel", "direct:r:1:s:1", jsonValue, map);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
-            template.asyncRequestBody("direct:r1:s1", json);
+            template.asyncRequestBody("direct:r:1:s:1", json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
-            System.out.println("XDD");
-            return new ResponseEntity<>(e.getCause().getMessage(), OK);
+            System.out.println(e);
+            return new ResponseEntity<>(e.getMessage(), OK);
         }
     }
 
@@ -71,11 +71,11 @@ public class Api {
             road.put(stepTo, uuid);
             BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), road);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
-            template.asyncRequestBody(KAFKA_PATH, json);
+            template.asyncRequestBody(KAFKA_PATH_SASHOK, json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
-            System.out.println("XDD");
-            return new ResponseEntity<>(e.getCause().getMessage(), OK);
+            System.out.println(e);
+            return new ResponseEntity<>(e.getMessage(), OK);
         }
     }
 
@@ -91,7 +91,7 @@ public class Api {
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
             System.out.println(e);
-            return new ResponseEntity<>(e.getCause().getMessage(), OK);
+            return new ResponseEntity<>(e.getMessage(), OK);
         }
     }
 

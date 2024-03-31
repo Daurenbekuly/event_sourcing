@@ -1,7 +1,7 @@
 package com.example.demo.route.step;
 
-import static com.example.demo.route.common.Constant.KAFKA_PATH;
 import static com.example.demo.route.common.Constant.RECEIVER;
+import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
 
 public class Step extends SashOkStepBuilder {
 
@@ -12,6 +12,8 @@ public class Step extends SashOkStepBuilder {
     public Step(String name,
                 String receiver,
                 String processor) {
+        nameValidator(name);
+        nameValidator(receiver);
         this.name = name;
         this.receiver = receiver;
         this.processor = processor;
@@ -22,7 +24,7 @@ public class Step extends SashOkStepBuilder {
         from(name)
                 .setHeader(RECEIVER, constant(receiver))
                 .process(processor)
-                .to(KAFKA_PATH)
+                .to(KAFKA_PATH_SASHOK)
                 .end();
     }
 }

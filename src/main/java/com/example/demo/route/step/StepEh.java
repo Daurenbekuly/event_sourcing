@@ -2,8 +2,8 @@ package com.example.demo.route.step;
 
 import com.example.demo.model.ErrorHandler;
 
-import static com.example.demo.route.common.Constant.KAFKA_PATH;
 import static com.example.demo.route.common.Constant.RECEIVER;
+import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
 
 public class StepEh extends SashOkStepBuilder {
 
@@ -15,6 +15,8 @@ public class StepEh extends SashOkStepBuilder {
                   String receiver,
                   String processor,
                   ErrorHandler errorHandler) {
+        nameValidator(name);
+        nameValidator(receiver);
         this.name = name;
         this.receiver = receiver;
         this.processor = processor;
@@ -29,7 +31,7 @@ public class StepEh extends SashOkStepBuilder {
         from(name)
                 .setHeader(RECEIVER, constant(receiver))
                 .process(processor)
-                .to(KAFKA_PATH)
+                .to(KAFKA_PATH_SASHOK)
                 .end();
     }
 

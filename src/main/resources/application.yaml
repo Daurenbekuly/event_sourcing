@@ -44,6 +44,7 @@ logging:
 
 app:
   kafka:
+    bootstrap-servers: localhost:29092
     topic:
       sashok: sashok-topic
       thirty-min-retry: thirty-min-retry-topic
@@ -57,11 +58,11 @@ app:
     group:
       step: step_group_id
       cassandra: cassandra_group_id
-      thirty-min-retry: thirty-min-retry-group_id
-      one-hours-retry: one-hours-retry-group_id
-      two-hour-retry: two-hour-retry-group_id
-      four-hours-retry: four-hours-retry-group_id
-      eight-hours-retry: eight-hours-retry-group_id
-      sixteen-hours-retry: sixteen-hours-retry-group_id
-      thirty-hours-retry: thirty-hours-retry-group_id
-      five-days-retry: five-days-retry-group_id
+      thirty-min-retry: thirty_min_retry_group_id
+      one-hours-retry: one-hours_retry_group_id
+      two-hour-retry: two_hour_retry_group_id
+      four-hours-retry: four_hours_retry_group_id
+      eight-hours-retry: eight_hours_retry_group_id
+      sixteen-hours-retry: sixteen_hours_retry_group_id
+      thirty-hours-retry: thirty_hours_retry_group_id
+      five-days-retry: five_days_retry_group_id
