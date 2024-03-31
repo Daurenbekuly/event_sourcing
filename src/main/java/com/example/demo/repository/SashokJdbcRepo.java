@@ -1,9 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.BaseModel;
-import com.example.demo.model.PGobject;
 import com.example.demo.util.JsonUtil;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
