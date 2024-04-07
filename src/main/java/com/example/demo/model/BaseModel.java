@@ -21,10 +21,10 @@ public record BaseModel(
     public BaseModel(BaseModel baseModel, UUID stepId, String receiver, Integer retryCount) {
         this(stepId,
                 baseModel.sashokId(),
-                baseModel.name(),
+                baseModel.receiverName(),
                 receiver,
                 baseModel.jsonValue(),
-                Instant.now(),
+                baseModel.createDate(),
                 retryCount,
                 baseModel.road(),
                 baseModel.mainRoadSteps()

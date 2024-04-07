@@ -2,12 +2,10 @@ package com.example.demo.route.step;
 
 import com.example.demo.entity.StepEntity;
 import com.example.demo.model.BaseModel;
-import com.example.demo.repository.StepRepository;
+import com.example.demo.repository.SashokRepository;
 import com.example.demo.util.JsonUtil;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.UUID;
@@ -15,31 +13,31 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.example.demo.route.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
-import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
 import static org.apache.camel.Exchange.REDELIVERY_COUNTER;
 import static org.apache.camel.Exchange.REDELIVERY_MAX_COUNTER;
 
-@Component
 public abstract class SashOkStepBuilder extends RouteBuilder {
 
     public String exceptionHandler = "direct:defErrorHandler";
-    public Integer maximumRedeliveries = 2;
+    public Integer maximumRedeliveries = 1;
     public Double exceptionBackOffMultiplier = 2.0;
     public Integer redeliveryDelay = 1000;
-    public String kafkaRetryPath = KAFKA_PATH_SASHOK;
 
-    @Autowired
-    private StepRepository stepRepository;
+    private final SashokRepository sashokRepository;
+
+    protected SashOkStepBuilder(SashokRepository sashokRepository) {
+        this.sashokRepository = sashokRepository;
+    }
 
     @Override
-    public void configure() throws Exception {
+    public void configure() {
         errorHandler(
                 defaultErrorHandler()
                         .maximumRedeliveries(maximumRedeliveries)
                         .redeliveryDelay(redeliveryDelay)
         );
 
-        onException(RuntimeException.class)
+        onException(Exception.class)
                 .log("Handling error: ${exception.stacktrace}")
                 .maximumRedeliveries(maximumRedeliveries)
                 .redeliveryDelay(redeliveryDelay)
@@ -49,18 +47,10 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
                 .logRetryAttempted(true)
                 .log("Message Exhausted after " + maximumRedeliveries + " retries...")
                 .handled(true)
-                .choice()
-                .when(this::isHasKafkaHandler)
-                .to(kafkaRetryPath)
-                .otherwise()
                 .process(EXCEPTION_HANDLER_PROCESSOR)
                 .end();
 
         declareStep();
-    }
-
-    private boolean isHasKafkaHandler(Exchange exchange) {
-        return !KAFKA_PATH_SASHOK.equals(kafkaRetryPath);
     }
 
     public abstract void declareStep();
@@ -78,8 +68,9 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
         UUID uuid = UUID.nameUUIDFromBytes(exchangeId.getBytes());
         BaseModel newBaseModel = new BaseModel(baseModel, uuid, receiver, availableTryCount);
         StepEntity stepEntity = new StepEntity(newBaseModel);
-        StepEntity saved = stepRepository.save(stepEntity);
+        StepEntity saved = sashokRepository.step().save(stepEntity);
         road.put(baseModel.receiverName(), saved.getStepId());
+        if (current == 1) sashokRepository.jdbc().retry(newBaseModel);
         String json = JsonUtil.toJson(newBaseModel).orElseThrow();
         exchange.getIn().setBody(json);
     }

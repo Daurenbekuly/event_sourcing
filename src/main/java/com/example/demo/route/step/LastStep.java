@@ -1,5 +1,7 @@
 package com.example.demo.route.step;
 
+import com.example.demo.repository.SashokRepository;
+
 import static com.example.demo.route.common.Constant.LAST_STEP_PROCESSOR;
 
 public class LastStep extends SashOkStepBuilder {
@@ -8,7 +10,9 @@ public class LastStep extends SashOkStepBuilder {
     private final String processor;
 
     public LastStep(String name,
-                    String processor) {
+                    String processor,
+                    SashokRepository sashokRepository) {
+        super(sashokRepository);
         nameValidator(name);
         this.name = name;
         this.processor = processor;

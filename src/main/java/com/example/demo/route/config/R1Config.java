@@ -1,5 +1,6 @@
 package com.example.demo.route.config;
 
+import com.example.demo.repository.SashokRepository;
 import com.example.demo.route.step.FirstStep;
 import com.example.demo.route.step.Step;
 import com.example.demo.route.step.LastStep;
@@ -11,20 +12,22 @@ import org.springframework.stereotype.Service;
 public class R1Config {
 
     private final ApplicationContext applicationContext;
+    private final SashokRepository sashokRepository;
 
-    public R1Config(ApplicationContext applicationContext) {
+    public R1Config(ApplicationContext applicationContext,
+                    SashokRepository sashokRepository) {
         this.applicationContext = applicationContext;
+        this.sashokRepository = sashokRepository;
     }
 
     public void startFirstRoute() throws Exception {
-        var s1 = new FirstStep("direct:r:1:s:1", "direct:r:1:s:2", "processor1");
-        var s2 = new Step("direct:r:1:s:2", "direct:r:1:s:3", "processor2");
+        var s1 = new FirstStep("direct:r:1:s:1", "direct:r:1:s:2", "processor1", sashokRepository);
+        var s2 = new Step("direct:r:1:s:2", "direct:r:1:s:3", "processor2", sashokRepository);
 //        var s3 = new StepEh("direct:r:1:s:3", "direct:r:1:s:4", "processor3", new ErrorHandler(null, 7, null, null));
-        var s3 = new Step("direct:r:1:s:3", "direct:r:1:s:4", "processor3");
-//        var s3 = new StepKh("direct:r:1:s:3", "direct:r:1:s:4", "processor3", KAFKA_PATH_THIRTY_MIN_RETRY);
+        var s3 = new Step("direct:r:1:s:3", "direct:r:1:s:4", "processor3", sashokRepository);
 //        var s3 = new StepSp("direct:r:1:s:3", "direct:r:2:s:1", "direct:r:1:s:4", "processor3");
-        var s4 = new Step("direct:r:1:s:4", "direct:r:1:s:5", "processor4");
-        var s5 = new LastStep("direct:r:1:s:5", "processor5");
+        var s4 = new Step("direct:r:1:s:4", "direct:r:1:s:5", "processor4", sashokRepository);
+        var s5 = new LastStep("direct:r:1:s:5", "processor5", sashokRepository);
 
 //        var ss1 = new FirstStep("direct:r:2:s:1", "direct:r:2:s:2", "processor6");
 //        var ss2 = new Step("direct:r:2:s:2", "direct:r:2:s:3", "processor7");

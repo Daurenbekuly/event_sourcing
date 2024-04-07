@@ -2,7 +2,7 @@ package com.example.demo.route.sashok_processor;
 
 import com.example.demo.entity.StepEntity;
 import com.example.demo.model.BaseModel;
-import com.example.demo.repository.SashokJdbcRepo;
+import com.example.demo.repository.SashokJdbcRepository;
 import com.example.demo.repository.StepRepository;
 import com.example.demo.util.JsonUtil;
 import org.apache.camel.Exchange;
@@ -15,12 +15,12 @@ import static com.example.demo.route.common.Constant.LAST_STEP_PROCESSOR;
 @Service(LAST_STEP_PROCESSOR)
 public class LastStepProcessor implements Processor {
 
-    private final SashokJdbcRepo sashokJdbcRepo;
+    private final SashokJdbcRepository sashokJdbcRepository;
     private final StepRepository stepRepository;
 
-    public LastStepProcessor(SashokJdbcRepo sashokJdbcRepo,
+    public LastStepProcessor(SashokJdbcRepository sashokJdbcRepository,
                              StepRepository stepRepository) {
-        this.sashokJdbcRepo = sashokJdbcRepo;
+        this.sashokJdbcRepository = sashokJdbcRepository;
         this.stepRepository = stepRepository;
     }
 
@@ -30,6 +30,6 @@ public class LastStepProcessor implements Processor {
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
         var stepEntity = new StepEntity(baseModel);
         stepRepository.save(stepEntity);
-        sashokJdbcRepo.dene(baseModel);
+        sashokJdbcRepository.success(baseModel);
     }
 }

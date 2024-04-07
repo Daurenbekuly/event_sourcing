@@ -12,7 +12,7 @@ public class Processor5 extends SashOkProcessor {
     public String invoke(String jsonValue) {
         ListNode listNode = JsonUtil.toObject(jsonValue, ListNode.class).orElseThrow();
         ListNode listNode1 = new ListNode("Processor5", listNode);
-        System.out.println(jsonValue);
+        log.info(jsonValue);
         return JsonUtil.toJson(listNode1).orElseThrow();
     }
 }

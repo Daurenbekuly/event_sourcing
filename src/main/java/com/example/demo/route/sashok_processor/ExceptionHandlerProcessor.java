@@ -1,7 +1,7 @@
 package com.example.demo.route.sashok_processor;
 
 import com.example.demo.model.BaseModel;
-import com.example.demo.repository.SashokJdbcRepo;
+import com.example.demo.repository.SashokRepository;
 import com.example.demo.util.JsonUtil;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -13,17 +13,17 @@ import static org.apache.camel.ExchangePropertyKey.EXCEPTION_CAUGHT;
 @Service(EXCEPTION_HANDLER_PROCESSOR)
 public class ExceptionHandlerProcessor implements Processor {
 
-    private final SashokJdbcRepo sashokJdbcRepo;
+    private final SashokRepository sashokRepository;
 
-    public ExceptionHandlerProcessor(SashokJdbcRepo sashokJdbcRepo) {
-        this.sashokJdbcRepo = sashokJdbcRepo;
+    public ExceptionHandlerProcessor(SashokRepository sashokRepository) {
+        this.sashokRepository = sashokRepository;
     }
 
     @Override
     public void process(Exchange exchange) throws Exception {
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
-        RuntimeException exception = exchange.getProperty(EXCEPTION_CAUGHT, RuntimeException.class);
-        sashokJdbcRepo.error(baseModel, exception);
+        Exception exception = exchange.getProperty(EXCEPTION_CAUGHT, Exception.class);
+        sashokRepository.jdbc().error(baseModel, new Exception(exception));
     }
 }

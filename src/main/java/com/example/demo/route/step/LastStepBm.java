@@ -1,5 +1,6 @@
 package com.example.demo.route.step;
 
+import com.example.demo.repository.SashokRepository;
 import org.apache.camel.Exchange;
 
 import static com.example.demo.route.common.Constant.BACK_TO_MAIN_ROUTE_PROCESSOR;
@@ -12,7 +13,9 @@ public class LastStepBm extends SashOkStepBuilder {
     private final String processor;
 
     public LastStepBm(String name,
-                      String processor) {
+                      String processor,
+                      SashokRepository sashokRepository) {
+        super(sashokRepository);
         nameValidator(name);
         this.name = name;
         this.processor = processor;

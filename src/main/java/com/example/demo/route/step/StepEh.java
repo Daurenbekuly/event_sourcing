@@ -1,6 +1,7 @@
 package com.example.demo.route.step;
 
 import com.example.demo.model.ErrorHandler;
+import com.example.demo.repository.SashokRepository;
 
 import static com.example.demo.route.common.Constant.RECEIVER;
 import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
@@ -14,7 +15,9 @@ public class StepEh extends SashOkStepBuilder {
     public StepEh(String name,
                   String receiver,
                   String processor,
-                  ErrorHandler errorHandler) {
+                  ErrorHandler errorHandler,
+                  SashokRepository sashokRepository) {
+        super(sashokRepository);
         nameValidator(name);
         nameValidator(receiver);
         this.name = name;

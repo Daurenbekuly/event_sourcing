@@ -3,8 +3,7 @@ package com.example.demo.api;
 import com.example.demo.demo.ListNode;
 import com.example.demo.entity.StepEntity;
 import com.example.demo.model.BaseModel;
-import com.example.demo.repository.SashokJdbcRepo;
-import com.example.demo.repository.StepRepository;
+import com.example.demo.repository.SashokRepository;
 import com.example.demo.route.config.R1Config;
 import com.example.demo.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,17 +28,14 @@ public class Api {
 
     private final ProducerTemplate template;
     private final R1Config r1Config;
-    private final StepRepository stepRepository;
-    private final SashokJdbcRepo sashokJdbcRepo;
+    private final SashokRepository sashokRepository;
 
     public Api(ProducerTemplate template,
                R1Config r1Config,
-               StepRepository stepRepository,
-               SashokJdbcRepo sashokJdbcRepo) {
+               SashokRepository sashokRepository) {
         this.template = template;
         this.r1Config = r1Config;
-        this.stepRepository = stepRepository;
-        this.sashokJdbcRepo = sashokJdbcRepo;
+        this.sashokRepository = sashokRepository;
     }
 
     @PostMapping("/{name}")
@@ -63,10 +59,10 @@ public class Api {
     @PostMapping("/{sashokId}/{stepFrom}/{stepTo}")
     public ResponseEntity<?> jump(@PathVariable Long sashokId, @PathVariable String stepFrom, @PathVariable String stepTo) {
         try {
-            String roadJson = sashokJdbcRepo.findRoadById(sashokId).orElseThrow();
+            String roadJson = sashokRepository.jdbc().findRoadById(sashokId).orElseThrow();
             Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
             UUID stepId = road.get(stepFrom);
-            StepEntity stepEntity = stepRepository.findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
+            StepEntity stepEntity = sashokRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
             UUID uuid = UUID.randomUUID();
             road.put(stepTo, uuid);
             BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), road);
@@ -82,8 +78,8 @@ public class Api {
     @PostMapping("/{sashokId}/{stepId}/retry")
     public ResponseEntity<?> retry(@PathVariable Long sashokId, @PathVariable UUID stepId) {
         try {
-            String roadJson = sashokJdbcRepo.findRoadById(sashokId).orElseThrow();
-            StepEntity stepEntity = stepRepository.findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
+            String roadJson = sashokRepository.jdbc().findRoadById(sashokId).orElseThrow();
+            StepEntity stepEntity = sashokRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
             Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
             BaseModel baseModel = new BaseModel(stepEntity, road);
             String json = JsonUtil.toJson(baseModel).orElseThrow();

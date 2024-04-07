@@ -13,17 +13,17 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
-public class SashokJdbcRepo {
+public class SashokJdbcRepository {
 
     private final NamedParameterJdbcTemplate template;
     private final SimpleJdbcInsert insert;
 
-    public SashokJdbcRepo(NamedParameterJdbcTemplate template) {
+    public SashokJdbcRepository(NamedParameterJdbcTemplate template) {
         this.template = template;
         this.insert = new SimpleJdbcInsert(template.getJdbcTemplate()).withTableName("sashok").usingGeneratedKeyColumns("id");
     }
 
-    public Long create(BaseModel baseModel) {
+    public Long active(BaseModel baseModel) {
         Map<String, Object> map = Map.of(
                 "json_variable", baseModel.jsonValue(),
                 "start_date", LocalDateTime.now(),
@@ -62,7 +62,23 @@ public class SashokJdbcRepo {
         template.update(errorMessageSql, errorMessageMap);
     }
 
-    public void dene(BaseModel baseModel) {
+    public void retry(BaseModel baseModel) {
+        String road = JsonUtil.toJson(baseModel.road()).orElseThrow();
+        Map<String, Object> map = Map.of(
+                "id", baseModel.sashokId(),
+                "json_variable", baseModel.jsonValue(),
+                "road", road);
+        String sql = """
+                update sashok
+                set json_variable = :json_variable::JSONB,
+                    road = :road,
+                    status = 'ON_RETRY'
+                where id = :id;
+                """;
+        template.update(sql, map);
+    }
+
+    public void success(BaseModel baseModel) {
         String road = JsonUtil.toJson(baseModel.road()).orElseThrow();
         Map<String, Object> map = Map.of(
                 "id", baseModel.sashokId(),
