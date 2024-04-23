@@ -7,21 +7,24 @@ import com.example.demo.util.JsonUtil;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.example.demo.route.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
+import static com.example.demo.route.common.Constant.TIMEOUT;
 import static org.apache.camel.Exchange.REDELIVERY_COUNTER;
 import static org.apache.camel.Exchange.REDELIVERY_MAX_COUNTER;
 
 public abstract class SashOkStepBuilder extends RouteBuilder {
 
-    public String exceptionHandler = "direct:defErrorHandler";
-    public Integer maximumRedeliveries = 1;
-    public Double exceptionBackOffMultiplier = 2.0;
-    public Integer redeliveryDelay = 1000;
+    protected String exceptionHandler = "direct:defErrorHandler";
+    protected Integer maximumRedeliveries = 10;
+    protected Double exceptionBackOffMultiplier = 2.0;
+    protected Long redeliveryDelay = 1000L;
 
     private final SashokRepository sashokRepository;
 
@@ -31,14 +34,9 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
 
     @Override
     public void configure() {
-        errorHandler(
-                defaultErrorHandler()
-                        .maximumRedeliveries(maximumRedeliveries)
-                        .redeliveryDelay(redeliveryDelay)
-        );
-
         onException(Exception.class)
                 .log("Handling error: ${exception.stacktrace}")
+                .maximumRedeliveryDelay(Long.MAX_VALUE)
                 .maximumRedeliveries(maximumRedeliveries)
                 .redeliveryDelay(redeliveryDelay)
                 .backOffMultiplier(exceptionBackOffMultiplier)
@@ -59,6 +57,7 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
         String receiver = exchange.getIn().getHeader("receiver", String.class);
         Integer current = exchange.getIn().getHeader(REDELIVERY_COUNTER, Integer.class);
         Integer max = exchange.getIn().getHeader(REDELIVERY_MAX_COUNTER, Integer.class);
+        Long timeout = exchange.getIn().getHeader(TIMEOUT, Long.class);
         Integer availableTryCount = max - current;
         log.info("Current try {} of {}", current, max);
         String body = exchange.getIn().getBody().toString();
@@ -67,7 +66,11 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
         String exchangeId = exchange.getExchangeId();
         UUID uuid = UUID.nameUUIDFromBytes(exchangeId.getBytes());
         BaseModel newBaseModel = new BaseModel(baseModel, uuid, receiver, availableTryCount);
-        StepEntity stepEntity = new StepEntity(newBaseModel);
+
+        long sec = (redeliveryDelay) / 1000;
+        double pow = Math.pow(exceptionBackOffMultiplier * sec, current) + Math.divideExact(timeout + 10000L, 1000);
+        Instant nextRetryDate = Instant.now().plusSeconds((long) pow);
+        StepEntity stepEntity = new StepEntity(newBaseModel, nextRetryDate); //todo update only retry count
         StepEntity saved = sashokRepository.step().save(stepEntity);
         road.put(baseModel.receiverName(), saved.getStepId());
         if (current == 1) sashokRepository.jdbc().retry(newBaseModel);

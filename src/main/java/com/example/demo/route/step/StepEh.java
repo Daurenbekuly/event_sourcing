@@ -4,6 +4,7 @@ import com.example.demo.model.ErrorHandler;
 import com.example.demo.repository.SashokRepository;
 
 import static com.example.demo.route.common.Constant.RECEIVER;
+import static com.example.demo.route.common.Constant.TIMEOUT;
 import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
 
 public class StepEh extends SashOkStepBuilder {
@@ -33,6 +34,7 @@ public class StepEh extends SashOkStepBuilder {
     public void declareStep() {
         from(name)
                 .setHeader(RECEIVER, constant(receiver))
+                .setHeader(TIMEOUT, constant(5000L))
                 .process(processor)
                 .to(KAFKA_PATH_SASHOK)
                 .end();

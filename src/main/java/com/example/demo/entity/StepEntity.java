@@ -30,6 +30,8 @@ public class StepEntity {
     private Integer retryCount;
     @Column(value = "main_road_steps")
     private Stack<String> mainRoadSteps;
+    @Column(value = "next_retry_date")
+    private Instant nextRetryDate;
 
     public StepEntity() {
     }
@@ -41,7 +43,8 @@ public class StepEntity {
                       String jsonValue,
                       Instant createDate,
                       Integer retryCount,
-                      Stack<String> mainRoadSteps) {
+                      Stack<String> mainRoadSteps,
+                      Instant nextRetryDate) {
         this.stepId = stepId;
         this.sashokId = sashokId;
         this.name = name;
@@ -50,17 +53,30 @@ public class StepEntity {
         this.createDate = createDate;
         this.retryCount = retryCount;
         this.mainRoadSteps = mainRoadSteps;
+        this.nextRetryDate = nextRetryDate;
     }
 
     public StepEntity(BaseModel baseModel) {
         this.stepId = baseModel.stepId();
         this.sashokId = baseModel.sashokId();
+        this.createDate = baseModel.createDate();
         this.name = baseModel.name();
         this.receiverName = baseModel.receiverName();
         this.jsonValue = baseModel.jsonValue();
-        this.createDate = baseModel.createDate();
         this.retryCount = baseModel.retryCount();
         this.mainRoadSteps = baseModel.mainRoadSteps();
+    }
+
+    public StepEntity(BaseModel baseModel, Instant nextRetryDate) {
+        this.stepId = baseModel.stepId();
+        this.sashokId = baseModel.sashokId();
+        this.name = baseModel.name();
+        this.receiverName = baseModel.receiverName();
+        this.jsonValue = baseModel.jsonValue();
+        this.createDate = Instant.now();
+        this.retryCount = baseModel.retryCount();
+        this.mainRoadSteps = baseModel.mainRoadSteps();
+        this.nextRetryDate = nextRetryDate;
     }
 
     public UUID getStepId() {
@@ -125,5 +141,13 @@ public class StepEntity {
 
     public void setMainRoadSteps(Stack<String> mainRoadSteps) {
         this.mainRoadSteps = mainRoadSteps;
+    }
+
+    public Instant getNextRetryDate() {
+        return nextRetryDate;
+    }
+
+    public void setNextRetryDate(Instant nextRetryDate) {
+        this.nextRetryDate = nextRetryDate;
     }
 }

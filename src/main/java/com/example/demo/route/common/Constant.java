@@ -10,4 +10,5 @@ public interface Constant {
     String FIRST_STEP_PROCESSOR = "firstStepProcessor";
     String LAST_STEP_PROCESSOR = "lastStepProcessor";
     String EXCEPTION_HANDLER_PROCESSOR = "exceptionHandlerProcessor";
+    String TIMEOUT = "timeout";
 }

@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.example.demo.route.common.Constant.RECEIVER;
+import static com.example.demo.route.common.Constant.TIMEOUT;
 import static java.util.Objects.isNull;
 
 public abstract class SashOkProcessor implements Processor {
@@ -26,11 +27,12 @@ public abstract class SashOkProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws ExecutionException, InterruptedException, TimeoutException {
         String receiver = exchange.getIn().getHeader(RECEIVER, String.class);
+        Long timeout = exchange.getIn().getHeader(TIMEOUT, Long.class);
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-        Future<String> futureResult = executor.submit(() -> invoke(baseModel.jsonValue()));
-        String jsonValue = futureResult.get(5000L, TimeUnit.MILLISECONDS);
+        Future<String> future = executor.submit(() -> invoke(baseModel.jsonValue()));
+        String jsonValue = future.get(timeout, TimeUnit.MILLISECONDS);
         String receiverName = baseModel.receiverName();
         if (isLastStep(receiverName)) return;
         Map<String, UUID> road = baseModel.road();
@@ -41,10 +43,10 @@ public abstract class SashOkProcessor implements Processor {
         exchange.getIn().setBody(json);
     }
 
+    protected abstract String invoke(String jsonValue);
+
     private static boolean isLastStep(String receiverName) {
         return isNull(receiverName);
     }
-
-    public abstract String invoke(String jsonValue);
 
 }

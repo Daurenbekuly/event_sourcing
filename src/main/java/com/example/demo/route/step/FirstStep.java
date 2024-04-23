@@ -4,6 +4,7 @@ import com.example.demo.repository.SashokRepository;
 
 import static com.example.demo.route.common.Constant.FIRST_STEP_PROCESSOR;
 import static com.example.demo.route.common.Constant.RECEIVER;
+import static com.example.demo.route.common.Constant.TIMEOUT;
 import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
 
 public class FirstStep extends SashOkStepBuilder {
@@ -28,6 +29,7 @@ public class FirstStep extends SashOkStepBuilder {
     public void declareStep() {
         from(name)
                 .setHeader(RECEIVER, constant(receiver))
+                .setHeader(TIMEOUT, constant(5000L))
                 .process(FIRST_STEP_PROCESSOR)
                 .process(processor)
                 .to(KAFKA_PATH_SASHOK)
