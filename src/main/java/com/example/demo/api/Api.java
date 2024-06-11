@@ -10,6 +10,8 @@ import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.common.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.camel.ProducerTemplate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +30,8 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/api/camel")
 public class Api {
 
+    protected final Logger log = LogManager.getLogger(getClass());
+
     private final ProducerTemplate template;
     private final R1Config r1Config;
     private final PostgresRepository postgresRepository;
@@ -43,7 +47,7 @@ public class Api {
         this.cassandraRepository = cassandraRepository;
     }
 
-    @PostMapping("/{name}")
+    @PostMapping("/start/{name}")
     public ResponseEntity<?> callProcess(@PathVariable("name") String value) {
         try {
             ListNode listNode = new ListNode(value);
@@ -56,12 +60,12 @@ public class Api {
             template.asyncRequestBody("direct:r:1:s:1", json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseEntity<>(e.getMessage(), OK);
         }
     }
 
-    @PostMapping("/{sashokId}/{stepFrom}/{stepTo}")
+    @PostMapping("/jump/{sashokId}/{stepFrom}/{stepTo}")
     public ResponseEntity<?> jump(@PathVariable Long sashokId, @PathVariable String stepFrom, @PathVariable String stepTo) {
         try {
             String roadJson = postgresRepository.findRoadById(sashokId).orElseThrow();
@@ -75,12 +79,12 @@ public class Api {
             template.asyncRequestBody(KAFKA_PATH_SASHOK, json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseEntity<>(e.getMessage(), OK);
         }
     }
 
-    @PostMapping("/{sashokId}/{stepId}/retry")
+    @PostMapping("/retry/{sashokId}/{stepId}")
     public ResponseEntity<?> retry(@PathVariable Long sashokId, @PathVariable UUID stepId) {
         try {
             String roadJson = postgresRepository.findRoadById(sashokId).orElseThrow();
@@ -91,14 +95,14 @@ public class Api {
             template.asyncRequestBody(stepEntity.getName(), json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
-            System.out.println(e);
+            log.error(e);
             return new ResponseEntity<>(e.getMessage(), OK);
         }
     }
 
-    @PostMapping("/start/r1")
+    @PostMapping("/build/r1")
     public ResponseEntity<?> startR1() throws Exception {
-        r1Config.startFirstRoute();
+        r1Config.buildRoad();
         return ResponseEntity.ok().build();
     }
 

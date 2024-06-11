@@ -1,22 +1,21 @@
 package com.example.demo.demo;
 
+import com.example.demo.route.SachokContext;
 import com.example.demo.route.step.FirstStep;
 import com.example.demo.route.step.LastStep;
 import com.example.demo.route.step.Step;
-import org.apache.camel.CamelContext;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 @Service
 public class R1Config {
 
-    private final CamelContext context;
+    private final SachokContext context;
 
-    public R1Config(CamelContext context) {
+    public R1Config(SachokContext context) {
         this.context = context;
     }
 
-    public void startFirstRoute() throws Exception {
+    public void buildRoad() throws Exception {
         var s1 = new FirstStep("direct:r:1:s:1", "direct:r:1:s:2", "processor1");
         var s2 = new Step("direct:r:1:s:2", "direct:r:1:s:3", "processor2");
         var s3 = new Step("direct:r:1:s:3", "direct:r:1:s:4", "processor3");
@@ -30,15 +29,6 @@ public class R1Config {
 //        var ss3 = new Step("direct:r:2:s:3", "direct:r:2:s:4", "processor8");
 //        var ss4 = new LastStepBm("direct:r:2:s:s4", "processor9");
 
-        context.addRoutes(s1);
-        context.addRoutes(s2);
-        context.addRoutes(s3);
-        context.addRoutes(s4);
-        context.addRoutes(s5);
-//        context.addRoutes(ss1);
-//        context.addRoutes(ss2);
-//        context.addRoutes(ss3);
-//        context.addRoutes(ss4);
-        context.getRouteController().start();
+        context.buildRoad(s1, s2, s3, s4, s5);
     }
 }
