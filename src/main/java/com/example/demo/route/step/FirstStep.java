@@ -1,13 +1,12 @@
 package com.example.demo.route.step;
 
-import com.example.demo.repository.SashokRepository;
-
 import static com.example.demo.route.common.Constant.FIRST_STEP_PROCESSOR;
 import static com.example.demo.route.common.Constant.RECEIVER;
 import static com.example.demo.route.common.Constant.TIMEOUT;
 import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
 
-public class FirstStep extends SashOkStepBuilder {
+
+public class FirstStep extends AbstractSashOkStepBuilder {
 
     private final String name;
     private final String receiver;
@@ -15,9 +14,7 @@ public class FirstStep extends SashOkStepBuilder {
 
     public FirstStep(String name,
                      String receiver,
-                     String processor,
-                     SashokRepository sashokRepository) {
-        super(sashokRepository);
+                     String processor) {
         nameValidator(name);
         nameValidator(receiver);
         this.name = name;

@@ -3,6 +3,7 @@ package com.example.demo.kafka;
 import com.example.demo.entity.StepEntity;
 import com.example.demo.model.BaseModel;
 import com.example.demo.repository.StepRepository;
+import com.example.demo.repository.StoppedStepRepository;
 import com.example.demo.util.JsonUtil;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -13,17 +14,21 @@ public class KafkaConsumer {
 
     private final ProducerTemplate template;
     private final StepRepository stepRepository;
+    private final StoppedStepRepository stoppedStepRepository;
 
     public KafkaConsumer(ProducerTemplate template,
-                         StepRepository stepRepository) {
+                         StepRepository stepRepository,
+                         StoppedStepRepository stoppedStepRepository) {
         this.template = template;
         this.stepRepository = stepRepository;
+        this.stoppedStepRepository = stoppedStepRepository;
     }
 
     @KafkaListener(topics = "${app.kafka.topic.sashok}", groupId = "${app.kafka.group.step}", concurrency = "5")
     public void stepListener(String message) {
         var baseModel = JsonUtil.toObject(message, BaseModel.class)
                 .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
+        if (isCancelled(baseModel)) return;
         template.asyncRequestBody(baseModel.receiverName(), message);
     }
 
@@ -33,6 +38,10 @@ public class KafkaConsumer {
                 .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
         var stepEntity = new StepEntity(baseModel);
         stepRepository.save(stepEntity);
+    }
+
+    private Boolean isCancelled(BaseModel baseModel) {
+        return stoppedStepRepository.existsBySashokId(baseModel.sashokId());
     }
 
 }

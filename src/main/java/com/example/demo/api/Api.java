@@ -2,8 +2,10 @@ package com.example.demo.api;
 
 import com.example.demo.demo.ListNode;
 import com.example.demo.entity.StepEntity;
+import com.example.demo.entity.StoppedStepEntity;
 import com.example.demo.model.BaseModel;
 import com.example.demo.repository.SashokRepository;
+import com.example.demo.repository.StoppedStepRepository;
 import com.example.demo.route.config.R1Config;
 import com.example.demo.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,13 +31,16 @@ public class Api {
     private final ProducerTemplate template;
     private final R1Config r1Config;
     private final SashokRepository sashokRepository;
+    private final StoppedStepRepository stoppedStepRepository;
 
     public Api(ProducerTemplate template,
                R1Config r1Config,
-               SashokRepository sashokRepository) {
+               SashokRepository sashokRepository,
+               StoppedStepRepository stoppedStepRepository) {
         this.template = template;
         this.r1Config = r1Config;
         this.sashokRepository = sashokRepository;
+        this.stoppedStepRepository = stoppedStepRepository;
     }
 
     @PostMapping("/{name}")
@@ -94,6 +99,12 @@ public class Api {
     @PostMapping("/start/r1")
     public ResponseEntity<?> startR1() throws Exception {
         r1Config.startFirstRoute();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/cancel/{sashokId}")
+    public ResponseEntity<?> cancel(@PathVariable Long sashokId) {
+        stoppedStepRepository.save(new StoppedStepEntity(sashokId));
         return ResponseEntity.ok().build();
     }
 

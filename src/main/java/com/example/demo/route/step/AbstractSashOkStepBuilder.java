@@ -8,7 +8,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -19,18 +18,13 @@ import static com.example.demo.route.common.Constant.TIMEOUT;
 import static org.apache.camel.Exchange.REDELIVERY_COUNTER;
 import static org.apache.camel.Exchange.REDELIVERY_MAX_COUNTER;
 
-public abstract class SashOkStepBuilder extends RouteBuilder {
+
+public abstract class AbstractSashOkStepBuilder extends RouteBuilder {
 
     protected String exceptionHandler = "direct:defErrorHandler";
     protected Integer maximumRedeliveries = 10;
     protected Double exceptionBackOffMultiplier = 2.0;
     protected Long redeliveryDelay = 1000L;
-
-    private final SashokRepository sashokRepository;
-
-    protected SashOkStepBuilder(SashokRepository sashokRepository) {
-        this.sashokRepository = sashokRepository;
-    }
 
     @Override
     public void configure() {
@@ -71,9 +65,9 @@ public abstract class SashOkStepBuilder extends RouteBuilder {
         double pow = Math.pow(exceptionBackOffMultiplier * sec, current) + Math.divideExact(timeout + 10000L, 1000);
         Instant nextRetryDate = Instant.now().plusSeconds((long) pow);
         StepEntity stepEntity = new StepEntity(newBaseModel, nextRetryDate); //todo update only retry count
-        StepEntity saved = sashokRepository.step().save(stepEntity);
+        StepEntity saved = SashokRepository.step().save(stepEntity);
         road.put(baseModel.receiverName(), saved.getStepId());
-        if (current == 1) sashokRepository.jdbc().retry(newBaseModel);
+        if (current == 1) SashokRepository.jdbc().retry(newBaseModel);
         String json = JsonUtil.toJson(newBaseModel).orElseThrow();
         exchange.getIn().setBody(json);
     }

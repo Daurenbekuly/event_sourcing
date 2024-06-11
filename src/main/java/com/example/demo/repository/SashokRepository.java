@@ -6,20 +6,19 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SashokRepository {
 
-    private final StepRepository stepRepository;
-    private final SashokJdbcRepository sashokJdbcRepository;
+    private static StepRepository stepRepository = null;
+    private static SashokJdbcRepository sashokJdbcRepository = null;
 
     public SashokRepository(StepRepository stepRepository, SashokJdbcRepository sashokJdbcRepository) {
-        this.stepRepository = stepRepository;
-        this.sashokJdbcRepository = sashokJdbcRepository;
+        SashokRepository.stepRepository = stepRepository;
+        SashokRepository.sashokJdbcRepository = sashokJdbcRepository;
     }
 
-
-    public StepRepository step() {
+    public static StepRepository step() {
         return stepRepository;
     }
 
-    public SashokJdbcRepository jdbc() {
+    public static SashokJdbcRepository jdbc() {
         return sashokJdbcRepository;
     }
 }
