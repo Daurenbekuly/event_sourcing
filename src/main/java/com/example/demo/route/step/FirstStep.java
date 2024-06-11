@@ -1,10 +1,9 @@
 package com.example.demo.route.step;
 
-import static com.example.demo.route.common.Constant.FIRST_STEP_PROCESSOR;
-import static com.example.demo.route.common.Constant.RECEIVER;
-import static com.example.demo.route.common.Constant.TIMEOUT;
-import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
-
+import static com.example.demo.common.Constant.FIRST_STEP_PROCESSOR;
+import static com.example.demo.common.Constant.RECEIVER;
+import static com.example.demo.common.Constant.TIMEOUT;
+import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
 
 public class FirstStep extends AbstractSashOkStepBuilder {
 
@@ -26,7 +25,7 @@ public class FirstStep extends AbstractSashOkStepBuilder {
     public void declareStep() {
         from(name)
                 .setHeader(RECEIVER, constant(receiver))
-                .setHeader(TIMEOUT, constant(5000L))
+                .setHeader(TIMEOUT, constant(executionTimeToWait))
                 .process(FIRST_STEP_PROCESSOR)
                 .process(processor)
                 .to(KAFKA_PATH_SASHOK)

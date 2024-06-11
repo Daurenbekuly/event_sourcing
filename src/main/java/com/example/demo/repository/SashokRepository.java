@@ -1,24 +1,26 @@
 package com.example.demo.repository;
 
+import com.example.demo.repository.cassandra.CassandraRepository;
+import com.example.demo.repository.postgres.PostgresRepository;
 import org.springframework.stereotype.Repository;
 
 
 @Repository
 public class SashokRepository {
 
-    private static StepRepository stepRepository = null;
-    private static SashokJdbcRepository sashokJdbcRepository = null;
+    private static CassandraRepository cassandraRepository = null;
+    private static PostgresRepository postgresRepository = null;
 
-    public SashokRepository(StepRepository stepRepository, SashokJdbcRepository sashokJdbcRepository) {
-        SashokRepository.stepRepository = stepRepository;
-        SashokRepository.sashokJdbcRepository = sashokJdbcRepository;
+    public SashokRepository(CassandraRepository cassandraRepository, PostgresRepository postgresRepository) {
+        SashokRepository.cassandraRepository = cassandraRepository;
+        SashokRepository.postgresRepository = postgresRepository;
     }
 
-    public static StepRepository step() {
-        return stepRepository;
+    public static CassandraRepository cassandra() {
+        return cassandraRepository;
     }
 
-    public static SashokJdbcRepository jdbc() {
-        return sashokJdbcRepository;
+    public static PostgresRepository postgres() {
+        return postgresRepository;
     }
 }

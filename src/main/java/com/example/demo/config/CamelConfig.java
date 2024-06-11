@@ -2,21 +2,19 @@ package com.example.demo.config;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Configuration;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @Configuration
 public class CamelConfig {
 
-    private final ApplicationContext applicationContext;
+    private final CamelContext context;
 
-    public CamelConfig(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public CamelConfig(CamelContext context) {
+        this.context = context;
     }
 
     @Bean
-    public CamelContext camelContext() throws Exception {
-        CamelContext context = applicationContext.getBean("camelContext", CamelContext.class);
+    public CamelContext camelContext() {
         context.setAutoStartup(false);
         return context;
     }

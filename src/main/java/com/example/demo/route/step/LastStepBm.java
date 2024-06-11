@@ -2,10 +2,10 @@ package com.example.demo.route.step;
 
 import org.apache.camel.Exchange;
 
-import static com.example.demo.route.common.Constant.BACK_TO_MAIN_ROUTE_PROCESSOR;
-import static com.example.demo.route.common.Constant.LAST_STEP_PROCESSOR;
-import static com.example.demo.route.common.Constant.TIMEOUT;
-import static com.example.demo.route.common.KafkaPath.KAFKA_PATH_SASHOK;
+import static com.example.demo.common.Constant.BACK_TO_MAIN_ROUTE_PROCESSOR;
+import static com.example.demo.common.Constant.LAST_STEP_PROCESSOR;
+import static com.example.demo.common.Constant.TIMEOUT;
+import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
 
 public class LastStepBm extends AbstractSashOkStepBuilder {
 
@@ -22,7 +22,7 @@ public class LastStepBm extends AbstractSashOkStepBuilder {
     @Override
     public void declareStep() {
         from(name)
-                .setHeader(TIMEOUT, constant(5000L))
+                .setHeader(TIMEOUT, constant(executionTimeToWait))
                 .process(processor)
                 .process(BACK_TO_MAIN_ROUTE_PROCESSOR)
                 .choice()
