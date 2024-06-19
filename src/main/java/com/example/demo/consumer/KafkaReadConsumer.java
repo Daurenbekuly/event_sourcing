@@ -1,7 +1,6 @@
 package com.example.demo.consumer;
 
 import com.example.demo.common.JsonUtil;
-import com.example.demo.repository.cassandra.StepRepository;
 import com.example.demo.repository.cassandra.StoppedStepRepository;
 import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
