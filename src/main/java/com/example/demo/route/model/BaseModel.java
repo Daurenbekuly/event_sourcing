@@ -44,7 +44,7 @@ public record BaseModel(
         );
     }
 
-    public BaseModel(UUID uuid, String name, String receiverName, String jsonValue, Map<String, UUID> map) {
+    public BaseModel(UUID uuid, String name, String receiverName, String jsonValue) {
         this(uuid,
                 0L,
                 name,
@@ -52,7 +52,7 @@ public record BaseModel(
                 jsonValue,
                 Instant.now(),
                 5,
-                map,
+                Map.of(receiverName, uuid),
                 new Stack<>());
     }
 

@@ -73,10 +73,10 @@ public abstract class AbstractSashOkStepBuilder extends RouteBuilder {
         exchange.getIn().setBody(json);
     }
 
-    public void nameValidator(String name) {
-        String pattern = "direct:.*?:(\\d+):.*?:(\\d+)";
+    public static void nameValidator(String name) {
+        String pattern = "direct:r.*?:(\\d+):s.*?:(\\d+)";
         Pattern regexPattern = Pattern.compile(pattern);
         Matcher matcher = regexPattern.matcher(name);
-        if (!matcher.matches()) throw new RuntimeException("Name is not valid, validator patter: " + pattern);
+        if (!matcher.matches()) throw new RuntimeException("Name " + name + "is not valid, validator patter: " + pattern);
     }
 }

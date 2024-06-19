@@ -1,5 +1,6 @@
 package com.example.demo.api;
 
+import com.example.demo.api.request.StartRequest;
 import com.example.demo.demo.ListNode;
 import com.example.demo.repository.cassandra.CassandraRepository;
 import com.example.demo.repository.cassandra.entity.StepEntity;
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
+import static com.example.demo.route.step.AbstractSashOkStepBuilder.nameValidator;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -47,17 +50,16 @@ public class Api {
         this.cassandraRepository = cassandraRepository;
     }
 
-    @PostMapping("/start/{name}")
-    public ResponseEntity<?> callProcess(@PathVariable("name") String value) {
+    @PostMapping("/start")
+    public ResponseEntity<?> callProcess(@RequestBody StartRequest request) {
         try {
-            ListNode listNode = new ListNode(value);
+            nameValidator(request.name());
+            ListNode listNode = new ListNode(request.value());
             String jsonValue = JsonUtil.toJson(listNode).orElseThrow();
-            Map<String, UUID> map = new HashMap<>();
-            UUID uuid = UUID.randomUUID();
-            map.put("direct:r:1:s:1", uuid);
-            BaseModel baseModel = new BaseModel(uuid, "api:camel", "direct:r:1:s:1", jsonValue, map);
+            UUID stepId = UUID.randomUUID();
+            BaseModel baseModel = new BaseModel(stepId, "api:camel", request.name(), jsonValue);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
-            template.asyncRequestBody("direct:r:1:s:1", json);
+            template.asyncRequestBody(request.name(), json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
             log.error(e);
