@@ -1,4 +1,4 @@
-package com.example.demo.config;
+package com.example.demo.demo.infrastructure.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;

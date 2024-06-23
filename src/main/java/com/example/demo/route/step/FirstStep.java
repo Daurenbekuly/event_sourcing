@@ -21,6 +21,18 @@ public class FirstStep extends AbstractSashOkStepBuilder {
         this.processor = processor;
     }
 
+    public FirstStep(String name,
+                     String receiver,
+                     String processor,
+                     Long executionTimeToWait) {
+        nameValidator(name);
+        nameValidator(receiver);
+        this.name = name;
+        this.receiver = receiver;
+        this.processor = processor;
+        this.executionTimeToWait = executionTimeToWait;
+    }
+
     @Override
     public void declareStep() {
         from(name)

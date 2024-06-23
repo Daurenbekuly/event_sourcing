@@ -7,10 +7,10 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.stereotype.Service;
 
-import static com.example.demo.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
+import static com.example.demo.common.Constant.DEFAULT_EXCEPTION_HANDLER_PROCESSOR;
 import static org.apache.camel.ExchangePropertyKey.EXCEPTION_CAUGHT;
 
-@Service(EXCEPTION_HANDLER_PROCESSOR)
+@Service(DEFAULT_EXCEPTION_HANDLER_PROCESSOR)
 public class ExceptionHandlerProcessor implements Processor {
 
     private final SashokRepository sashokRepository;

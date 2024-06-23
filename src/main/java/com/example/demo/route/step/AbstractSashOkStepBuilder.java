@@ -11,9 +11,13 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.example.demo.common.Constant.DEFAULT_EXCEPTION_BACK_OFF_MULTI;
+import static com.example.demo.common.Constant.DEFAULT_EXECUTION_TIME_TO_WAIT;
+import static com.example.demo.common.Constant.DEFAULT_MAX_REDELIVERIES;
+import static com.example.demo.common.Constant.DEFAULT_REDELIVERY_DELAY;
 import static com.example.demo.repository.SashokRepository.*;
 import static com.example.demo.repository.SashokRepository.cassandra;
-import static com.example.demo.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
+import static com.example.demo.common.Constant.DEFAULT_EXCEPTION_HANDLER_PROCESSOR;
 import static com.example.demo.common.Constant.TIMEOUT;
 import static com.example.demo.common.JsonUtil.*;
 import static org.apache.camel.Exchange.REDELIVERY_COUNTER;
@@ -21,11 +25,11 @@ import static org.apache.camel.Exchange.REDELIVERY_MAX_COUNTER;
 
 public abstract class AbstractSashOkStepBuilder extends RouteBuilder {
 
-    protected String exceptionHandler = "direct:defErrorHandler";
-    protected Integer maximumRedeliveries = 5;
-    protected Double exceptionBackOffMultiplier = 2.0;
-    protected Long redeliveryDelay = 1000L;
-    protected Long executionTimeToWait = 5000L;
+    protected String exceptionHandler = DEFAULT_EXCEPTION_HANDLER_PROCESSOR;
+    protected Integer maximumRedeliveries = DEFAULT_MAX_REDELIVERIES;
+    protected Double exceptionBackOffMultiplier = DEFAULT_EXCEPTION_BACK_OFF_MULTI;
+    protected Long redeliveryDelay = DEFAULT_REDELIVERY_DELAY;
+    protected Long executionTimeToWait = DEFAULT_EXECUTION_TIME_TO_WAIT;
 
     @Override
     public void configure() {
@@ -40,7 +44,7 @@ public abstract class AbstractSashOkStepBuilder extends RouteBuilder {
                 .logRetryAttempted(true)
                 .log("Message Exhausted after " + maximumRedeliveries + " retries...")
                 .handled(true)
-                .process(EXCEPTION_HANDLER_PROCESSOR)
+                .process(exceptionHandler)
                 .end();
 
         declareStep();
@@ -65,7 +69,7 @@ public abstract class AbstractSashOkStepBuilder extends RouteBuilder {
         long sec = (redeliveryDelay) / 1000;
         double pow = Math.pow(exceptionBackOffMultiplier * sec, current) + Math.divideExact(timeout + 10000L, 1000);
         Instant nextRetryDate = Instant.now().plusSeconds((long) pow);
-        StepEntity stepEntity = new StepEntity(newBaseModel, nextRetryDate); //todo update only retry count
+        StepEntity stepEntity = new StepEntity(newBaseModel, nextRetryDate);
         StepEntity saved = cassandra().step().save(stepEntity);
         road.put(baseModel.receiverName(), saved.getStepId());
         if (current == 1) postgres().retry(newBaseModel);

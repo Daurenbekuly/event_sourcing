@@ -1,4 +1,4 @@
-package com.example.demo.config;
+package com.example.demo.demo.infrastructure.config;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Configuration;

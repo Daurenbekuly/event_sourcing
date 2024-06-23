@@ -15,6 +15,15 @@ public class LastStep extends AbstractSashOkStepBuilder {
         this.processor = processor;
     }
 
+    public LastStep(String name,
+                    String processor,
+                    Long executionTimeToWait) {
+        nameValidator(name);
+        this.name = name;
+        this.processor = processor;
+        this.executionTimeToWait = executionTimeToWait;
+    }
+
     @Override
     public void declareStep() {
         from(name)

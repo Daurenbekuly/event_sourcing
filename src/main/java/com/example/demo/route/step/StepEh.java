@@ -27,6 +27,23 @@ public class StepEh extends AbstractSashOkStepBuilder {
         this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
     }
 
+    public StepEh(String name,
+                  String receiver,
+                  String processor,
+                  ErrorHandler errorHandler,
+                  Long executionTimeToWait) {
+        nameValidator(name);
+        nameValidator(receiver);
+        this.name = name;
+        this.receiver = receiver;
+        this.processor = processor;
+        this.redeliveryDelay = errorHandler.redeliveryDelay();
+        this.exceptionHandler = errorHandler.exceptionHandler();
+        this.maximumRedeliveries = errorHandler.maximumRedeliveries();
+        this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
+        this.executionTimeToWait = executionTimeToWait;
+    }
+
     @Override
     public void declareStep() {
         from(name)

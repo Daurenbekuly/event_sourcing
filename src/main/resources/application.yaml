@@ -1,52 +1,29 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/alibi
-    username: alibi
-    password: alibi
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      minimum-idle: 50
-      maximum-pool-size: 200
-      idle-timeout: 120000
-      leak-detection-threshold: 60000
-      max-lifetime: 50000
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/alibi
+#    username: alibi
+#    password: alibi
+#    driver-class-name: org.postgresql.Driver
+#    hikari:
+#      minimum-idle: 50
+#      maximum-pool-size: 200
+#      idle-timeout: 120000
+#      leak-detection-threshold: 60000
+#      max-lifetime: 50000
   threads:
     virtual:
       enabled: true
+
+#app:
+#  kafka:
+#    bootstrap-server: localhost:29092
+#    topic:
+#      sashok: sashok-topic
+#    group:
+#      step: step_group_id
+#      cassandra: cassandra_group_id
+
+sashok:
   kafka:
-    consumer:
-      group-id: group_id
-      auto-offset-reset: earliest
-      max-poll-records: 1
-      enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      bootstrap-servers: localhost:29092
-    producer:
-      retries: 0
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      bootstrap-servers: localhost:29092
-
-server:
-  tomcat:
-    threads:
-      max: 1000
-      min-spare: 400
-    connection-timeout: 60000
-  port: 8088
-
-logging:
-  level:
-    org:
-      springframework:
-        web: DEBUG
-
-app:
-  kafka:
-    bootstrap-servers: localhost:29092
-    topic:
-      sashok: sashok-topic
-    group:
-      step: step_group_id
-      cassandra: cassandra_group_id
+    bootstrap-server: localhost:29092
+    topic: sashok-topic

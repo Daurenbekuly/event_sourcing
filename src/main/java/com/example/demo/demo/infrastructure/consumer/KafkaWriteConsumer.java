@@ -1,4 +1,4 @@
-package com.example.demo.consumer;
+package com.example.demo.demo.infrastructure.consumer;
 
 import com.example.demo.repository.cassandra.entity.StepEntity;
 import com.example.demo.route.model.BaseModel;
@@ -17,7 +17,7 @@ public class KafkaWriteConsumer extends RouteBuilder {
     @Value("${app.kafka.topic.sashok}")
     private String topic;
 
-    @Value("${app.kafka.bootstrap-servers}")
+    @Value("${app.kafka.bootstrap-server}")
     private String broker;
 
     @Value("${app.kafka.group.cassandra}")

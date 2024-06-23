@@ -26,6 +26,21 @@ public class StepSp extends AbstractSashOkStepBuilder {
         this.processor = processor;
     }
 
+    public StepSp(String name,
+                  String subRouteReceiver,
+                  String mainRouteReceiver,
+                  String processor,
+                  Long executionTimeToWait) {
+        nameValidator(name);
+        nameValidator(subRouteReceiver);
+        nameValidator(mainRouteReceiver);
+        this.name = name;
+        this.subRouteReceiver = subRouteReceiver;
+        this.mainRouteReceiver = mainRouteReceiver;
+        this.processor = processor;
+        this.executionTimeToWait = executionTimeToWait;
+    }
+
     @Override
     public void declareStep() {
         from(name)
