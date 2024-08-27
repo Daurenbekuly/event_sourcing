@@ -2,7 +2,6 @@ package com.example.demo.api;
 
 import com.example.demo.api.request.StartRequest;
 import com.example.demo.common.JsonUtil;
-import com.example.demo.demo.ListNode;
 import com.example.demo.repository.cassandra.CassandraRepository;
 import com.example.demo.repository.cassandra.entity.StepEntity;
 import com.example.demo.repository.cassandra.entity.StoppedStepEntity;
@@ -57,11 +56,10 @@ public class Api {
     }
 
     @PostMapping("/start")
-    public ResponseEntity<?> callProcess(@RequestBody StartRequest request) {
+    public ResponseEntity<?> startProcess(@RequestBody StartRequest request) {
         try {
             nameValidator(request.name());
-            ListNode listNode = new ListNode(request.value());
-            String jsonValue = JsonUtil.toJson(listNode).orElseThrow();
+            String jsonValue = JsonUtil.toJson(request.value()).orElseThrow();
             UUID stepId = UUID.randomUUID();
             BaseModel baseModel = new BaseModel(stepId, "api:camel", request.name(), jsonValue);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
