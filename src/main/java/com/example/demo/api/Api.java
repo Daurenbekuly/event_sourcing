@@ -9,10 +9,13 @@ import com.example.demo.route.model.BaseModel;
 import com.example.demo.demo.R1Config;
 import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.common.JsonUtil;
+import com.example.demo.route.processor.AbstractSashokProcessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.camel.ProducerTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
-import static com.example.demo.route.step.AbstractSashOkStepBuilder.nameValidator;
+import static com.example.demo.route.step.AbstractSashokStep.nameValidator;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController

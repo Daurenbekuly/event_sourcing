@@ -22,7 +22,7 @@ import static com.example.demo.common.Constant.TIMEOUT;
 import static java.util.Objects.isNull;
 import static java.util.concurrent.TimeUnit.*;
 
-public abstract class AbstractSashOkProcessor implements Processor {
+public abstract class AbstractSashokProcessor implements Processor {
 
     protected final Logger log = LogManager.getLogger(getClass());
 
@@ -36,7 +36,7 @@ public abstract class AbstractSashOkProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
-        if (isCancelled(baseModel)) throw new FatalException("cancelled");
+        if (isCancelled(baseModel)) throw new FatalException("Cancelled!");
 
         String receiverName = baseModel.receiverName();
         if (isLastStep(receiverName)) return;

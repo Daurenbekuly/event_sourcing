@@ -1,12 +1,12 @@
 package com.example.demo.demo.processor;
 
 import com.example.demo.demo.ListNode;
-import com.example.demo.route.processor.AbstractSashOkProcessor;
+import com.example.demo.route.processor.AbstractSashokProcessor;
 import com.example.demo.common.JsonUtil;
 import org.springframework.stereotype.Service;
 
 @Service
-public class Processor5 extends AbstractSashOkProcessor {
+public class Processor5 extends AbstractSashokProcessor {
 
     @Override
     public String invoke(String jsonValue) {

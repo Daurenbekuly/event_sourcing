@@ -2,6 +2,11 @@ package com.example.demo.common;
 
 public interface Constant {
 
+    Integer MAXIMUM_REDELIVERIES = 5;
+    Double EXCEPTION_BACKOFF_MULTIPLIER = 2.0;
+    Long REDELIVERY_DELAY = 5000L;
+    Long EXECUTION_TIME_TO_WAIT = 5000L;
+
     String MAIN_ROUTE_RECEIVER = "mainRouteReceiver";
     String RECEIVER = "receiver";
     String RECEIVERS = "receivers";

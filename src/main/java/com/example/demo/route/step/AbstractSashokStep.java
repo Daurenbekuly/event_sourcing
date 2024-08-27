@@ -12,8 +12,12 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.example.demo.common.Constant.EXCEPTION_BACKOFF_MULTIPLIER;
 import static com.example.demo.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
+import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
+import static com.example.demo.common.Constant.MAXIMUM_REDELIVERIES;
 import static com.example.demo.common.Constant.RECEIVER;
+import static com.example.demo.common.Constant.REDELIVERY_DELAY;
 import static com.example.demo.common.Constant.TIMEOUT;
 import static com.example.demo.common.JsonUtil.toJson;
 import static com.example.demo.common.JsonUtil.toObject;
@@ -24,20 +28,20 @@ import static org.apache.camel.Exchange.REDELIVERY_MAX_COUNTER;
 import static org.apache.camel.LoggingLevel.ERROR;
 import static org.apache.camel.LoggingLevel.WARN;
 
-public abstract class AbstractSashOkStepBuilder extends RouteBuilder {
+public abstract class AbstractSashokStep extends RouteBuilder {
 
     protected String exceptionHandler = EXCEPTION_HANDLER_PROCESSOR;
-    protected Integer maximumRedeliveries = 5;
-    protected Double exceptionBackOffMultiplier = 2.0;
-    protected Long redeliveryDelay = 2000L;
-    protected Long executionTimeToWait = 5000L;
+    protected Integer maximumRedeliveries = MAXIMUM_REDELIVERIES;
+    protected Double exceptionBackOffMultiplier = EXCEPTION_BACKOFF_MULTIPLIER;
+    protected Long redeliveryDelay = REDELIVERY_DELAY;
+    protected Long executionTimeToWait = EXECUTION_TIME_TO_WAIT;
 
     @Override
     public void configure() {
         onException(FatalException.class)
                 .log(WARN, "Handling error: ${exception.stacktrace}")
                 .handled(true)
-                .process(EXCEPTION_HANDLER_PROCESSOR)
+                .process(exceptionHandler)
                 .end();
 
         onException(Exception.class)
@@ -50,7 +54,7 @@ public abstract class AbstractSashOkStepBuilder extends RouteBuilder {
                 .onRedelivery(this::reduceRetryCount)
                 .log(ERROR, "Message Exhausted after " + maximumRedeliveries + " retries...")
                 .handled(true)
-                .process(EXCEPTION_HANDLER_PROCESSOR)
+                .process(exceptionHandler)
                 .end();
 
         declareStep();
