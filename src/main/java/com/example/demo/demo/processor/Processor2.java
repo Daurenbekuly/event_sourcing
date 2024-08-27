@@ -13,7 +13,7 @@ public class Processor2 extends AbstractSashOkProcessor {
         ListNode listNode = JsonUtil.toObject(jsonValue, ListNode.class).orElseThrow();
         ListNode listNode1 = new ListNode("Processor2", listNode);
         log.info(jsonValue);
-//        throw new RuntimeException("XDD bro");
+//        throw new RuntimeException();
 //        try {
 //            Thread.sleep(Duration.ofMinutes(1));
 //        } catch (InterruptedException e) {

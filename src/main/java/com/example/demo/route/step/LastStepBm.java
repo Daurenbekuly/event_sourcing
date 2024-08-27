@@ -26,10 +26,10 @@ public class LastStepBm extends AbstractSashOkStepBuilder {
                 .process(processor)
                 .process(BACK_TO_MAIN_ROUTE_PROCESSOR)
                 .choice()
-                .when(Exchange::isRouteStop)
-                .process(LAST_STEP_PROCESSOR)
-                .end()
-                .to(KAFKA_PATH_SASHOK)
+                    .when(Exchange::isRouteStop)
+                        .process(LAST_STEP_PROCESSOR)
+                    .otherwise()
+                        .to(KAFKA_PATH_SASHOK)
                 .end();
     }
 }

@@ -26,7 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-cassandra'
 
     // camel
-    implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.6.0'
+    implementation 'org.apache.camel.springboot:camel-spring-boot-starter:4.7.0'
     implementation ('org.apache.camel.kafkaconnector:camel-kafka-connector:4.4.2') {
         exclude group: 'com.sun.xml.bind', module: 'jaxb-core'
     }

@@ -51,7 +51,7 @@ public record BaseModel(
                 receiverName,
                 jsonValue,
                 Instant.now(),
-                5,
+                -1,
                 Map.of(receiverName, uuid),
                 new Stack<>());
     }
@@ -63,7 +63,7 @@ public record BaseModel(
                 receiverName,
                 jsonValue,
                 Instant.now(),
-                5,
+                -1,
                 map,
                 new Stack<>());
     }
@@ -75,7 +75,7 @@ public record BaseModel(
                 baseModel.receiverName,
                 baseModel.jsonValue,
                 Instant.now(),
-                5,
+                -1,
                 baseModel.road,
                 baseModel.mainRoadSteps);
     }
@@ -87,7 +87,7 @@ public record BaseModel(
                 receiver,
                 baseModel.jsonValue,
                 Instant.now(),
-                5,
+                -1,
                 baseModel.road,
                 mainRoadSteps);
     }
@@ -99,7 +99,7 @@ public record BaseModel(
                 receiver,
                 baseModel.jsonValue,
                 Instant.now(),
-                5,
+                -1,
                 baseModel.road,
                 baseModel.mainRoadSteps);
     }
@@ -111,7 +111,7 @@ public record BaseModel(
                 receiver,
                 jsonValue,
                 Instant.now(),
-                5,
+                -1,
                 road,
                 baseModel.mainRoadSteps);
     }
@@ -123,7 +123,7 @@ public record BaseModel(
                 stepEntity.getReceiverName(),
                 stepEntity.getJsonValue(),
                 stepEntity.getCreateDate(),
-                5,
+                -1,
                 road,
                 stepEntity.getMainRoadSteps());
     }

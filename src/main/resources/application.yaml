@@ -10,9 +10,9 @@ spring:
       idle-timeout: 120000
       leak-detection-threshold: 60000
       max-lifetime: 50000
-  threads:
-    virtual:
-      enabled: true
+#  threads:
+#    virtual:
+#      enabled: true
   kafka:
     consumer:
       group-id: group_id

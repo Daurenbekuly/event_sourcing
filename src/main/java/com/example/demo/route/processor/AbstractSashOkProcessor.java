@@ -1,5 +1,7 @@
 package com.example.demo.route.processor;
 
+import com.example.demo.common.FatalException;
+import com.example.demo.repository.SashokRepository;
 import com.example.demo.route.model.BaseModel;
 import com.example.demo.common.JsonUtil;
 import org.apache.camel.Exchange;
@@ -34,6 +36,7 @@ public abstract class AbstractSashOkProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
+        if (isCancelled(baseModel)) throw new FatalException("cancelled");
 
         String receiverName = baseModel.receiverName();
         if (isLastStep(receiverName)) return;
@@ -58,8 +61,12 @@ public abstract class AbstractSashOkProcessor implements Processor {
 
     protected abstract String invoke(String jsonValue);
 
-    private static boolean isLastStep(String receiverName) {
+    private boolean isLastStep(String receiverName) {
         return isNull(receiverName);
+    }
+
+    private boolean isCancelled(BaseModel baseModel) {
+        return SashokRepository.cassandra().stoppedStep().isCancelled(baseModel);
     }
 
 }

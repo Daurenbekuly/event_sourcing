@@ -46,11 +46,7 @@ public class KafkaReadConsumer extends RouteBuilder {
         var body = exchange.getIn().getBody().toString();
         var baseModel = JsonUtil.toObject(body, BaseModel.class)
                 .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
-        if (isCancelled(baseModel)) return;
+        if (stoppedStepRepository.isCancelled(baseModel)) return;
         template.asyncRequestBody(baseModel.receiverName(), body);
-    }
-
-    private Boolean isCancelled(BaseModel baseModel) {
-        return stoppedStepRepository.existsBySashokId(baseModel.sashokId());
     }
 }
