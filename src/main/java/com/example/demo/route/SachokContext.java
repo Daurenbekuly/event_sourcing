@@ -2,6 +2,7 @@ package com.example.demo.route;
 
 import com.example.demo.route.step.AbstractSashokStep;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Route;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

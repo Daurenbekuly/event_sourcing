@@ -3,7 +3,6 @@ package com.example.demo.api;
 import com.example.demo.api.request.StartRequest;
 import com.example.demo.common.JsonUtil;
 import com.example.demo.demo.ListNode;
-import com.example.demo.demo.R1Config;
 import com.example.demo.repository.cassandra.CassandraRepository;
 import com.example.demo.repository.cassandra.entity.StepEntity;
 import com.example.demo.repository.cassandra.entity.StoppedStepEntity;
@@ -40,20 +39,17 @@ public class Api {
     protected final Logger log = LogManager.getLogger(getClass());
 
     private final ProducerTemplate template;
-    private final R1Config r1Config;
     private final PostgresRepository postgresRepository;
     private final CassandraRepository cassandraRepository;
     private final RouteBuilder routeBuilder;
     private final Components components;
 
     public Api(ProducerTemplate template,
-               R1Config r1Config,
                PostgresRepository postgresRepository,
                CassandraRepository cassandraRepository,
                RouteBuilder routeBuilder,
                Components components) {
         this.template = template;
-        this.r1Config = r1Config;
         this.postgresRepository = postgresRepository;
         this.cassandraRepository = cassandraRepository;
         this.routeBuilder = routeBuilder;
@@ -111,17 +107,6 @@ public class Api {
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(stepEntity.getName(), json);
             return new ResponseEntity<>(OK);
-        } catch (Exception e) {
-            log.error(e);
-            return new ResponseEntity<>(e.getMessage(), OK);
-        }
-    }
-
-    @PostMapping("/build/r1")
-    public ResponseEntity<?> startR1() throws Exception {
-        try {
-            r1Config.buildRoad();
-            return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error(e);
             return new ResponseEntity<>(e.getMessage(), OK);
