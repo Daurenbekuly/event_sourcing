@@ -34,7 +34,9 @@ public class Components {
         STEP,
         STEP_SP,
         LAST_STEP,
-        LAST_STEP_BM
+        LAST_STEP_BM,
+        STEP_BEFORE_UT,
+        STEP_AFTER_UT
     }
 
 }

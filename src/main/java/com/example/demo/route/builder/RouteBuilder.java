@@ -8,6 +8,8 @@ import com.example.demo.route.step.FirstStep;
 import com.example.demo.route.step.LastStep;
 import com.example.demo.route.step.LastStepBm;
 import com.example.demo.route.step.Step;
+import com.example.demo.route.step.StepAfterUt;
+import com.example.demo.route.step.StepBeforeUt;
 import com.example.demo.route.step.StepSp;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +31,15 @@ public class RouteBuilder {
     public void invoke(BuildRouteList buildRouteList) throws Exception {
         List<AbstractSashokStep> steps = new ArrayList<>();
 
-        buildRouteList.steps().forEach(step -> {
-            var sashokStep = switch (step.key()) {
-                case FIRST_STEP -> buildFirstStep(step.value());
-                case STEP -> buildStep(step.value());
-                case STEP_SP -> buildStepSp(step.value());
-                case LAST_STEP_BM -> buildLastStepBm(step.value());
-                case LAST_STEP -> buildLastStep(step.value());
+        buildRouteList.steps().forEach(buildStep -> {
+            var sashokStep = switch (buildStep.key()) {
+                case FIRST_STEP -> buildFirstStep(buildStep.value());
+                case STEP -> buildStep(buildStep.value());
+                case STEP_SP -> buildStepSp(buildStep.value());
+                case LAST_STEP_BM -> buildLastStepBm(buildStep.value());
+                case LAST_STEP -> buildLastStep(buildStep.value());
+                case STEP_BEFORE_UT -> buildStepBeforeUt(buildStep.value());
+                case STEP_AFTER_UT -> builStepAfterUt(buildStep.value());
             };
             steps.add(sashokStep);
         });
@@ -84,5 +88,24 @@ public class RouteBuilder {
         ErrorHandler errorHandler = (ErrorHandler) value.getOrDefault("errorHandler", new ErrorHandler());
         Long executionTimeToWait = (Long) value.getOrDefault("executionTimeToWait", EXECUTION_TIME_TO_WAIT);
         return new LastStep(name, processor, errorHandler, executionTimeToWait);
+    }
+
+
+    private StepBeforeUt buildStepBeforeUt(Map<String, Object> value) {
+        String name = (String) value.get("name");
+        String receiver = (String) value.get("receiver");
+        String processor = (String) value.get("processor");
+        ErrorHandler errorHandler = (ErrorHandler) value.getOrDefault("errorHandler", new ErrorHandler());
+        Long executionTimeToWait = (Long) value.getOrDefault("executionTimeToWait", EXECUTION_TIME_TO_WAIT);
+        return new StepBeforeUt(name, receiver, processor, errorHandler, executionTimeToWait);
+    }
+
+    private StepAfterUt builStepAfterUt(Map<String, Object> value) {
+        String name = (String) value.get("name");
+        String receiver = (String) value.get("receiver");
+        String processor = (String) value.get("processor");
+        ErrorHandler errorHandler = (ErrorHandler) value.getOrDefault("errorHandler", new ErrorHandler());
+        Long executionTimeToWait = (Long) value.getOrDefault("executionTimeToWait", EXECUTION_TIME_TO_WAIT);
+        return new StepAfterUt(name, receiver, processor, errorHandler, executionTimeToWait);
     }
 }

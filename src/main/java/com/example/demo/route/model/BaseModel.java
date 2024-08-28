@@ -127,4 +127,16 @@ public record BaseModel(
                 road,
                 stepEntity.getMainRoadSteps());
     }
+
+    public BaseModel(StepEntity stepEntity, String jsonValue, Map<String, UUID> road) {
+        this(stepEntity.getStepId(),
+                stepEntity.getSashokId(),
+                stepEntity.getName(),
+                stepEntity.getReceiverName(),
+                jsonValue,
+                stepEntity.getCreateDate(),
+                -1,
+                road,
+                stepEntity.getMainRoadSteps());
+    }
 }

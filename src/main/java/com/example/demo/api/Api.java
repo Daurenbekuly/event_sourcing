@@ -1,5 +1,6 @@
 package com.example.demo.api;
 
+import com.example.demo.api.request.ContinueRequest;
 import com.example.demo.api.request.StartRequest;
 import com.example.demo.common.JsonUtil;
 import com.example.demo.repository.cassandra.CassandraRepository;
@@ -56,7 +57,7 @@ public class Api {
     }
 
     @PostMapping("/start")
-    public ResponseEntity<?> startProcess(@RequestBody StartRequest request) {
+    public ResponseEntity<?> start(@RequestBody StartRequest request) {
         try {
             nameValidator(request.name());
             String jsonValue = JsonUtil.toJson(request.value()).orElseThrow();
@@ -77,8 +78,7 @@ public class Api {
                                   @PathVariable String stepTo) {
         try {
             String roadJson = postgresRepository.findRoadById(sashokId).orElseThrow();
-            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {
-            }).orElseThrow();
+            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
             UUID stepId = road.get(stepFrom);
             StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
             UUID uuid = UUID.randomUUID();
@@ -93,14 +93,12 @@ public class Api {
         }
     }
 
-    @PostMapping("/retry/{sashokId}/{stepId}")
-    public ResponseEntity<?> retry(@PathVariable Long sashokId,
-                                   @PathVariable UUID stepId) {
+    @PostMapping("/retry/{stepId}")
+    public ResponseEntity<?> retry(@PathVariable UUID stepId) {
         try {
-            String roadJson = postgresRepository.findRoadById(sashokId).orElseThrow();
             StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
-            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {
-            }).orElseThrow();
+            String roadJson = postgresRepository.findRoadById(stepEntity.getSashokId()).orElseThrow();
+            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
             BaseModel baseModel = new BaseModel(stepEntity, road);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(stepEntity.getName(), json);
@@ -129,15 +127,32 @@ public class Api {
     }
 
     @GetMapping("/processors")
-    public ResponseEntity<?> processors() {
+    public ResponseEntity<?> getAllProcessors() {
         List<String> processors = components.getAllProcessors();
         return ResponseEntity.ok(processors);
     }
 
     @GetMapping("/steps")
-    public ResponseEntity<?> steps() {
+    public ResponseEntity<?> getAllSteps() {
         List<Components.Steps> steps = components.getAllSteps();
         return ResponseEntity.ok(steps);
+    }
+
+    @PostMapping("/continue/user-task")
+    public ResponseEntity<?> continueUserTask(@RequestBody ContinueRequest request) {
+        try {
+            StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(request.stepId(), LocalDateTime.now()).orElseThrow();
+            String roadJson = postgresRepository.findRoadById(stepEntity.getSashokId()).orElseThrow();
+            String jsonValue = JsonUtil.toJson(request.value()).orElseThrow();
+            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            BaseModel baseModel = new BaseModel(stepEntity, jsonValue, road);
+            String json = JsonUtil.toJson(baseModel).orElseThrow();
+            template.asyncRequestBody(stepEntity.getReceiverName(), json);
+            return new ResponseEntity<>(OK);
+        } catch (Exception e) {
+            log.error(e);
+            return new ResponseEntity<>(e.getMessage(), OK);
+        }
     }
 
 }
