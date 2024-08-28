@@ -26,12 +26,8 @@ public class StepEntity {
     private String jsonValue;
     @PrimaryKeyColumn(value = "create_date", type = PrimaryKeyType.PARTITIONED, ordering = Ordering.DESCENDING)
     private Instant createDate;
-    @Column(value = "retry_count")
-    private Integer retryCount;
     @Column(value = "main_route_steps")
     private Stack<String> mainRouteSteps;
-    @Column(value = "next_retry_date")
-    private Instant nextRetryDate;
 
     public StepEntity() {
     }
@@ -42,41 +38,24 @@ public class StepEntity {
                       String receiverName,
                       String jsonValue,
                       Instant createDate,
-                      Integer retryCount,
-                      Stack<String> mainRouteSteps,
-                      Instant nextRetryDate) {
+                      Stack<String> mainRouteSteps) {
         this.stepId = stepId;
         this.sashokId = sashokId;
         this.name = name;
         this.receiverName = receiverName;
         this.jsonValue = jsonValue;
         this.createDate = createDate;
-        this.retryCount = retryCount;
         this.mainRouteSteps = mainRouteSteps;
-        this.nextRetryDate = nextRetryDate;
     }
 
     public StepEntity(BaseModel baseModel) {
         this.stepId = baseModel.stepId();
         this.sashokId = baseModel.sashokId();
-        this.createDate = baseModel.createDate();
-        this.name = baseModel.name();
-        this.receiverName = baseModel.receiverName();
-        this.jsonValue = baseModel.jsonValue();
-        this.retryCount = baseModel.retryCount();
-        this.mainRouteSteps = baseModel.mainRouteSteps();
-    }
-
-    public StepEntity(BaseModel baseModel, Instant nextRetryDate) {
-        this.stepId = baseModel.stepId();
-        this.sashokId = baseModel.sashokId();
-        this.name = baseModel.name();
-        this.receiverName = baseModel.receiverName();
-        this.jsonValue = baseModel.jsonValue();
         this.createDate = Instant.now();
-        this.retryCount = baseModel.retryCount();
+        this.name = baseModel.name();
+        this.receiverName = baseModel.receiverName();
+        this.jsonValue = baseModel.jsonValue();
         this.mainRouteSteps = baseModel.mainRouteSteps();
-        this.nextRetryDate = nextRetryDate;
     }
 
     public UUID getStepId() {
@@ -127,14 +106,6 @@ public class StepEntity {
         this.createDate = createDate;
     }
 
-    public Integer getRetryCount() {
-        return retryCount;
-    }
-
-    public void setRetryCount(Integer retryCount) {
-        this.retryCount = retryCount;
-    }
-
     public Stack<String> getMainRouteSteps() {
         return mainRouteSteps;
     }
@@ -143,11 +114,4 @@ public class StepEntity {
         this.mainRouteSteps = mainRouteSteps;
     }
 
-    public Instant getNextRetryDate() {
-        return nextRetryDate;
-    }
-
-    public void setNextRetryDate(Instant nextRetryDate) {
-        this.nextRetryDate = nextRetryDate;
-    }
 }

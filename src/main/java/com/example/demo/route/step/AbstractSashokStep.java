@@ -1,6 +1,7 @@
 package com.example.demo.route.step;
 
 import com.example.demo.common.CancelException;
+import com.example.demo.repository.cassandra.entity.RetryEntity;
 import com.example.demo.repository.cassandra.entity.StepEntity;
 import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
@@ -80,10 +81,15 @@ public abstract class AbstractSashokStep extends RouteBuilder {
         long sec = (redeliveryDelay) / 1000;
         double pow = Math.pow(exceptionBackOffMultiplier * sec, current) + Math.divideExact(timeout + 10000L, 1000);
         Instant nextRetryDate = Instant.now().plusSeconds((long) pow);
-        StepEntity stepEntity = new StepEntity(newBaseModel, nextRetryDate); //todo update only retry count
-        StepEntity saved = cassandra().step().save(stepEntity);
-        route.put(baseModel.receiverName(), saved.getStepId());
-        if (current == 1) postgres().retry(newBaseModel);
+        RetryEntity retryEntity = new RetryEntity(newBaseModel, nextRetryDate);
+        cassandra().retry().save(retryEntity);
+
+        if (current == 1) {
+            StepEntity stepEntity = new StepEntity(newBaseModel);
+            StepEntity saved = cassandra().step().save(stepEntity);
+            route.put(baseModel.receiverName(), saved.getStepId());
+            postgres().retry(newBaseModel);
+        }
         String json = toJson(newBaseModel).orElseThrow();
         exchange.getIn().setBody(json);
     }

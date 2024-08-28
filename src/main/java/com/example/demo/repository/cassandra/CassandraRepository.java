@@ -7,10 +7,14 @@ public class CassandraRepository {
 
     private final StepRepository step;
     private final StoppedStepRepository stoppedStep;
+    private final RetryRepository retry;
 
-    public CassandraRepository(StepRepository step, StoppedStepRepository stoppedStep) {
+    public CassandraRepository(StepRepository step,
+                               StoppedStepRepository stoppedStep,
+                               RetryRepository retry) {
         this.step = step;
         this.stoppedStep = stoppedStep;
+        this.retry = retry;
     }
 
     public StepRepository step() {
@@ -19,5 +23,9 @@ public class CassandraRepository {
 
     public StoppedStepRepository stoppedStep() {
         return stoppedStep;
+    }
+
+    public RetryRepository retry() {
+        return retry;
     }
 }

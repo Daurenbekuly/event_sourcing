@@ -47,16 +47,13 @@ public class PostgresRepository {
 
     @Transactional
     public void error(BaseModel baseModel, Exception exception) {
-        String route = toJson(baseModel.route()).orElseThrow();
         Map<String, Object> sashokMap = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
-                "route", route,
                 "end_date", LocalDateTime.now());
         String sashokSql = """
                 update sashok
                 set json_variable = :json_variable::JSONB,
-                    route = :route,
                     end_date = :end_date,
                     status = 'ERROR'
                 where id = :id;
@@ -156,16 +153,13 @@ public class PostgresRepository {
     }
 
     public void cancel(BaseModel baseModel) {
-        String route = toJson(baseModel.route()).orElseThrow();
         Map<String, Object> sashokMap = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
-                "route", route,
                 "end_date", LocalDateTime.now());
         String sashokSql = """
                 update sashok
                 set json_variable = :json_variable::JSONB,
-                    route = :route,
                     end_date = :end_date,
                     status = 'CANCELLED'
                 where id = :id;
