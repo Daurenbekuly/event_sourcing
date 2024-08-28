@@ -44,10 +44,10 @@ public abstract class AbstractSashokProcessor implements Processor {
         UUID stepId = UUID.randomUUID();
         String receiver = exchange.getIn().getHeader(RECEIVER, String.class);
         String jsonValue = invoke(exchange, baseModel);
-        Map<String, UUID> road = baseModel.road();
-        road.put(receiverName, stepId);
+        Map<String, UUID> route = baseModel.route();
+        route.put(receiverName, stepId);
 
-        BaseModel newBaseModel = new BaseModel(baseModel, stepId, receiver, jsonValue, road);
+        BaseModel newBaseModel = new BaseModel(baseModel, stepId, receiver, jsonValue, route);
         String json = JsonUtil.toJson(newBaseModel).orElseThrow();
         exchange.getIn().setBody(json);
     }

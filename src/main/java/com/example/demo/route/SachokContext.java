@@ -16,16 +16,20 @@ public class SachokContext {
         this.context = context;
     }
 
-    public void buildRoad(AbstractSashokStep... steps) throws Exception {
+    public void buildRoute(AbstractSashokStep... steps) throws Exception {
         for (AbstractSashokStep step : steps) {
             context.addRoutes(step);
         }
         context.getRouteController().start();
     }
 
-    public void buildRoad(List<AbstractSashokStep> steps) throws Exception {
+    public void buildRoute(List<AbstractSashokStep> steps) {
         for (AbstractSashokStep step : steps) {
-            context.addRoutes(step);
+            try {
+                context.addRoutes(step);
+            } catch (Exception e) {
+                throw new RuntimeException("Add routes");
+            }
         }
         context.getRouteController().start();
     }

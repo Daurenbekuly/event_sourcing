@@ -28,8 +28,8 @@ public class StepEntity {
     private Instant createDate;
     @Column(value = "retry_count")
     private Integer retryCount;
-    @Column(value = "main_road_steps")
-    private Stack<String> mainRoadSteps;
+    @Column(value = "main_route_steps")
+    private Stack<String> mainRouteSteps;
     @Column(value = "next_retry_date")
     private Instant nextRetryDate;
 
@@ -43,7 +43,7 @@ public class StepEntity {
                       String jsonValue,
                       Instant createDate,
                       Integer retryCount,
-                      Stack<String> mainRoadSteps,
+                      Stack<String> mainRouteSteps,
                       Instant nextRetryDate) {
         this.stepId = stepId;
         this.sashokId = sashokId;
@@ -52,7 +52,7 @@ public class StepEntity {
         this.jsonValue = jsonValue;
         this.createDate = createDate;
         this.retryCount = retryCount;
-        this.mainRoadSteps = mainRoadSteps;
+        this.mainRouteSteps = mainRouteSteps;
         this.nextRetryDate = nextRetryDate;
     }
 
@@ -64,7 +64,7 @@ public class StepEntity {
         this.receiverName = baseModel.receiverName();
         this.jsonValue = baseModel.jsonValue();
         this.retryCount = baseModel.retryCount();
-        this.mainRoadSteps = baseModel.mainRoadSteps();
+        this.mainRouteSteps = baseModel.mainRouteSteps();
     }
 
     public StepEntity(BaseModel baseModel, Instant nextRetryDate) {
@@ -75,7 +75,7 @@ public class StepEntity {
         this.jsonValue = baseModel.jsonValue();
         this.createDate = Instant.now();
         this.retryCount = baseModel.retryCount();
-        this.mainRoadSteps = baseModel.mainRoadSteps();
+        this.mainRouteSteps = baseModel.mainRouteSteps();
         this.nextRetryDate = nextRetryDate;
     }
 
@@ -135,12 +135,12 @@ public class StepEntity {
         this.retryCount = retryCount;
     }
 
-    public Stack<String> getMainRoadSteps() {
-        return mainRoadSteps;
+    public Stack<String> getMainRouteSteps() {
+        return mainRouteSteps;
     }
 
-    public void setMainRoadSteps(Stack<String> mainRoadSteps) {
-        this.mainRoadSteps = mainRoadSteps;
+    public void setMainRouteSteps(Stack<String> mainRouteSteps) {
+        this.mainRouteSteps = mainRouteSteps;
     }
 
     public Instant getNextRetryDate() {

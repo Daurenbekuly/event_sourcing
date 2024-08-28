@@ -16,12 +16,12 @@ public class BackToMainProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
-        Stack<String> mainRoadSteps = baseModel.mainRoadSteps();
-        if (mainRoadSteps.isEmpty()) {
+        Stack<String> mainRouteSteps = baseModel.mainRouteSteps();
+        if (mainRouteSteps.isEmpty()) {
             exchange.setRouteStop(true);
         } else {
-            String receiver = mainRoadSteps.pop();
-            BaseModel newBaseModel = new BaseModel(baseModel, receiver, mainRoadSteps);
+            String receiver = mainRouteSteps.pop();
+            BaseModel newBaseModel = new BaseModel(baseModel, receiver, mainRouteSteps);
             String json = JsonUtil.toJson(newBaseModel).orElseThrow();
             exchange.getIn().setBody(json);
         }

@@ -1,7 +1,8 @@
 package com.example.demo.route.builder;
 
+import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.SachokContext;
-import com.example.demo.route.model.BuildRouteList;
+import com.example.demo.route.model.BuildRouteData;
 import com.example.demo.route.model.ErrorHandler;
 import com.example.demo.route.step.AbstractSashokStep;
 import com.example.demo.route.step.FirstStep;
@@ -11,6 +12,8 @@ import com.example.demo.route.step.Step;
 import com.example.demo.route.step.StepAfterUt;
 import com.example.demo.route.step.StepBeforeUt;
 import com.example.demo.route.step.StepSp;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,20 +21,25 @@ import java.util.List;
 import java.util.Map;
 
 import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
+import static com.example.demo.common.JsonUtil.toObject;
+import static com.example.demo.route.builder.Components.Steps.FIRST_STEP;
 
 @Service
 public class RouteBuilder {
 
     private final SachokContext context;
+    private final PostgresRepository postgresRepository;
 
-    public RouteBuilder(SachokContext context) {
+    public RouteBuilder(SachokContext context,
+                        PostgresRepository postgresRepository) {
         this.context = context;
+        this.postgresRepository = postgresRepository;
     }
 
-    public void invoke(BuildRouteList buildRouteList) throws Exception {
+    public void invoke(BuildRouteData buildRouteData) {
         List<AbstractSashokStep> steps = new ArrayList<>();
 
-        buildRouteList.steps().forEach(buildStep -> {
+        buildRouteData.steps().forEach(buildStep -> {
             var sashokStep = switch (buildStep.key()) {
                 case FIRST_STEP -> buildFirstStep(buildStep.value());
                 case STEP -> buildStep(buildStep.value());
@@ -43,7 +51,18 @@ public class RouteBuilder {
             };
             steps.add(sashokStep);
         });
-        context.buildRoad(steps);
+
+        String firstStep = (String) buildRouteData
+                .steps()
+                .stream()
+                .filter(step -> FIRST_STEP.equals(step.key()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("First step is not exist"))
+                .value()
+                .get("name");
+
+        context.buildRoute(steps);
+        postgresRepository.saveRoute(buildRouteData, firstStep);
     }
 
     private FirstStep buildFirstStep(Map<String, Object> value) {
@@ -107,5 +126,14 @@ public class RouteBuilder {
         ErrorHandler errorHandler = (ErrorHandler) value.getOrDefault("errorHandler", new ErrorHandler());
         Long executionTimeToWait = (Long) value.getOrDefault("executionTimeToWait", EXECUTION_TIME_TO_WAIT);
         return new StepAfterUt(name, receiver, processor, errorHandler, executionTimeToWait);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void autoBuild() {
+        List<String> buildRouteList = postgresRepository.createDataList();
+        buildRouteList.forEach(jsonBuildRoute -> {
+            BuildRouteData buildRoute = toObject(jsonBuildRoute, BuildRouteData.class).orElseThrow();
+            invoke(buildRoute);
+        });
     }
 }

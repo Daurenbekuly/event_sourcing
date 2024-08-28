@@ -10,7 +10,7 @@ import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.builder.Components;
 import com.example.demo.route.builder.RouteBuilder;
 import com.example.demo.route.model.BaseModel;
-import com.example.demo.route.model.BuildRouteList;
+import com.example.demo.route.model.BuildRouteData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.camel.ProducerTemplate;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
-import static com.example.demo.route.step.AbstractSashokStep.nameValidator;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -59,16 +59,16 @@ public class Api {
     @PostMapping("/start")
     public ResponseEntity<?> start(@RequestBody StartRequest request) {
         try {
-            nameValidator(request.name());
+            String firstStep = postgresRepository.findRouteFirstStepByName(request.name());
             String jsonValue = JsonUtil.toJson(request.value()).orElseThrow();
             UUID stepId = UUID.randomUUID();
-            BaseModel baseModel = new BaseModel(stepId, "api:camel", request.name(), jsonValue);
+            BaseModel baseModel = new BaseModel(stepId, "api:camel", firstStep, jsonValue);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
-            template.asyncRequestBody(request.name(), json);
+            template.asyncRequestBody(firstStep, json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
             log.error(e);
-            return new ResponseEntity<>(e.getMessage(), OK);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -77,19 +77,19 @@ public class Api {
                                   @PathVariable String stepFrom,
                                   @PathVariable String stepTo) {
         try {
-            String roadJson = postgresRepository.findRoadById(sashokId).orElseThrow();
-            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
-            UUID stepId = road.get(stepFrom);
+            String routeJson = postgresRepository.findRouteById(sashokId).orElseThrow();
+            Map<String, UUID> route = JsonUtil.toCollection(routeJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            UUID stepId = route.get(stepFrom);
             StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
             UUID uuid = UUID.randomUUID();
-            road.put(stepTo, uuid);
-            BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), road);
+            route.put(stepTo, uuid);
+            BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), route);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(KAFKA_PATH_SASHOK, json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
             log.error(e);
-            return new ResponseEntity<>(e.getMessage(), OK);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -97,15 +97,15 @@ public class Api {
     public ResponseEntity<?> retry(@PathVariable UUID stepId) {
         try {
             StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
-            String roadJson = postgresRepository.findRoadById(stepEntity.getSashokId()).orElseThrow();
-            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
-            BaseModel baseModel = new BaseModel(stepEntity, road);
+            String routeJson = postgresRepository.findRouteById(stepEntity.getSashokId()).orElseThrow();
+            Map<String, UUID> route = JsonUtil.toCollection(routeJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            BaseModel baseModel = new BaseModel(stepEntity, route);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(stepEntity.getName(), json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
             log.error(e);
-            return new ResponseEntity<>(e.getMessage(), OK);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -116,13 +116,13 @@ public class Api {
     }
 
     @PostMapping("/build")
-    public ResponseEntity<?> buildRoad(@RequestBody BuildRouteList buildRouteList) {
+    public ResponseEntity<?> buildRoute(@RequestBody BuildRouteData buildRouteData) {
         try {
-            routeBuilder.invoke(buildRouteList);
+            routeBuilder.invoke(buildRouteData);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error(e);
-            return new ResponseEntity<>(e.getMessage(), OK);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -142,16 +142,16 @@ public class Api {
     public ResponseEntity<?> continueUserTask(@RequestBody ContinueRequest request) {
         try {
             StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(request.stepId(), LocalDateTime.now()).orElseThrow();
-            String roadJson = postgresRepository.findRoadById(stepEntity.getSashokId()).orElseThrow();
+            String routeJson = postgresRepository.findRouteById(stepEntity.getSashokId()).orElseThrow();
             String jsonValue = JsonUtil.toJson(request.value()).orElseThrow();
-            Map<String, UUID> road = JsonUtil.toCollection(roadJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
-            BaseModel baseModel = new BaseModel(stepEntity, jsonValue, road);
+            Map<String, UUID> route = JsonUtil.toCollection(routeJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            BaseModel baseModel = new BaseModel(stepEntity, jsonValue, route);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(stepEntity.getReceiverName(), json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
             log.error(e);
-            return new ResponseEntity<>(e.getMessage(), OK);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 

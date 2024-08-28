@@ -21,8 +21,8 @@ public class SashokEntity {
     private Long id;
     @Column(name = "json_variable")
     private Object jsonVariable;
-    @Column(name = "road")
-    private String road;
+    @Column(name = "route")
+    private String route;
     @Column(name = "start_date")
     private Timestamp startDate;
     @Column(name = "end_date")
@@ -36,7 +36,7 @@ public class SashokEntity {
     public SashokEntity(BaseModel baseModel, String status) {
         this.id = baseModel.sashokId();
         this.jsonVariable = baseModel.jsonValue();
-        this.road = JsonUtil.toJson(baseModel.road()).orElseThrow();
+        this.route = JsonUtil.toJson(baseModel.route()).orElseThrow();
         this.status = status;
     }
 
@@ -56,12 +56,12 @@ public class SashokEntity {
         this.jsonVariable = jsonVariable;
     }
 
-    public String getRoad() {
-        return road;
+    public String getRoute() {
+        return route;
     }
 
-    public void setRoad(String road) {
-        this.road = road;
+    public void setRoute(String route) {
+        this.route = route;
     }
 
     public Timestamp getStartDate() {

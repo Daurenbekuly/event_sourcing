@@ -19,7 +19,7 @@ public class InitSubProcessor implements Processor {
         String mainRouteReceiver = exchange.getIn().getHeader(MAIN_ROUTE_RECEIVER, String.class);
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
-        baseModel.mainRoadSteps().push(mainRouteReceiver);
+        baseModel.mainRouteSteps().push(mainRouteReceiver);
         BaseModel newBaseModel = new BaseModel(baseModel, subRouteReceiver);
         String json = JsonUtil.toJson(newBaseModel).orElseThrow();
         exchange.getIn().setBody(json);

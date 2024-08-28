@@ -17,8 +17,8 @@ import java.util.UUID;
  * @param jsonValue
  * @param createDate
  * @param retryCount
- * @param road map with step name and step id
- * @param mainRoadSteps stack next main road step name
+ * @param route map with step name and step id
+ * @param mainRouteSteps stack next main route step name
  */
 public record BaseModel(
         UUID stepId,
@@ -28,8 +28,8 @@ public record BaseModel(
         String jsonValue,
         Instant createDate,
         Integer retryCount,
-        Map<String, UUID> road,
-        Stack<String> mainRoadSteps) {
+        Map<String, UUID> route,
+        Stack<String> mainRouteSteps) {
 
     public BaseModel(BaseModel baseModel, UUID stepId, String receiver, Integer retryCount) {
         this(stepId,
@@ -39,8 +39,8 @@ public record BaseModel(
                 baseModel.jsonValue(),
                 baseModel.createDate(),
                 retryCount,
-                baseModel.road(),
-                baseModel.mainRoadSteps()
+                baseModel.route(),
+                baseModel.mainRouteSteps()
         );
     }
 
@@ -56,7 +56,7 @@ public record BaseModel(
                 new Stack<>());
     }
 
-    public BaseModel(UUID uuid, Long sashokId, String name, String receiverName, String jsonValue, Map<String, UUID> map) {
+    public BaseModel(UUID uuid, Long sashokId, String name, String receiverName, String jsonValue, Map<String, UUID> route) {
         this(uuid,
                 sashokId,
                 name,
@@ -64,7 +64,7 @@ public record BaseModel(
                 jsonValue,
                 Instant.now(),
                 -1,
-                map,
+                route,
                 new Stack<>());
     }
 
@@ -76,11 +76,11 @@ public record BaseModel(
                 baseModel.jsonValue,
                 Instant.now(),
                 -1,
-                baseModel.road,
-                baseModel.mainRoadSteps);
+                baseModel.route,
+                baseModel.mainRouteSteps);
     }
 
-    public BaseModel(BaseModel baseModel, String receiver, Stack<String> mainRoadSteps) {
+    public BaseModel(BaseModel baseModel, String receiver, Stack<String> mainRouteSteps) {
         this(baseModel.stepId,
                 baseModel.sashokId,
                 baseModel.name,
@@ -88,8 +88,8 @@ public record BaseModel(
                 baseModel.jsonValue,
                 Instant.now(),
                 -1,
-                baseModel.road,
-                mainRoadSteps);
+                baseModel.route,
+                mainRouteSteps);
     }
 
     public BaseModel(BaseModel baseModel, String receiver) {
@@ -100,11 +100,11 @@ public record BaseModel(
                 baseModel.jsonValue,
                 Instant.now(),
                 -1,
-                baseModel.road,
-                baseModel.mainRoadSteps);
+                baseModel.route,
+                baseModel.mainRouteSteps);
     }
 
-    public BaseModel(BaseModel baseModel, UUID uuid, String receiver, String jsonValue, Map<String, UUID> road) {
+    public BaseModel(BaseModel baseModel, UUID uuid, String receiver, String jsonValue, Map<String, UUID> route) {
         this(uuid,
                 baseModel.sashokId,
                 baseModel.receiverName,
@@ -112,11 +112,11 @@ public record BaseModel(
                 jsonValue,
                 Instant.now(),
                 -1,
-                road,
-                baseModel.mainRoadSteps);
+                route,
+                baseModel.mainRouteSteps);
     }
 
-    public BaseModel(StepEntity stepEntity, Map<String, UUID> road) {
+    public BaseModel(StepEntity stepEntity, Map<String, UUID> route) {
         this(stepEntity.getStepId(),
                 stepEntity.getSashokId(),
                 stepEntity.getName(),
@@ -124,11 +124,11 @@ public record BaseModel(
                 stepEntity.getJsonValue(),
                 stepEntity.getCreateDate(),
                 -1,
-                road,
-                stepEntity.getMainRoadSteps());
+                route,
+                stepEntity.getMainRouteSteps());
     }
 
-    public BaseModel(StepEntity stepEntity, String jsonValue, Map<String, UUID> road) {
+    public BaseModel(StepEntity stepEntity, String jsonValue, Map<String, UUID> route) {
         this(stepEntity.getStepId(),
                 stepEntity.getSashokId(),
                 stepEntity.getName(),
@@ -136,7 +136,7 @@ public record BaseModel(
                 jsonValue,
                 stepEntity.getCreateDate(),
                 -1,
-                road,
-                stepEntity.getMainRoadSteps());
+                route,
+                stepEntity.getMainRouteSteps());
     }
 }

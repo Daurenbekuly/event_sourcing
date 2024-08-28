@@ -71,7 +71,7 @@ public abstract class AbstractSashokStep extends RouteBuilder {
         log.info("Current try {} of {}", current, max);
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = toObject(body, BaseModel.class).orElseThrow();
-        Map<String, UUID> road = baseModel.road();
+        Map<String, UUID> route = baseModel.route();
         String exchangeId = exchange.getExchangeId();
         UUID uuid = UUID.nameUUIDFromBytes(exchangeId.getBytes());
         BaseModel newBaseModel = new BaseModel(baseModel, uuid, receiver, availableTryCount);
@@ -81,7 +81,7 @@ public abstract class AbstractSashokStep extends RouteBuilder {
         Instant nextRetryDate = Instant.now().plusSeconds((long) pow);
         StepEntity stepEntity = new StepEntity(newBaseModel, nextRetryDate); //todo update only retry count
         StepEntity saved = cassandra().step().save(stepEntity);
-        road.put(baseModel.receiverName(), saved.getStepId());
+        route.put(baseModel.receiverName(), saved.getStepId());
         if (current == 1) postgres().retry(newBaseModel);
         String json = toJson(newBaseModel).orElseThrow();
         exchange.getIn().setBody(json);
