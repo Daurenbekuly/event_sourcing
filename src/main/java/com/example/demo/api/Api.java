@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
+import static com.example.demo.route.builder.Components.Steps.FIRST_STEP;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -119,6 +120,15 @@ public class Api {
     public ResponseEntity<?> buildRoute(@RequestBody BuildRouteData buildRouteData) {
         try {
             routeBuilder.invoke(buildRouteData);
+            var firstStep = (String) buildRouteData
+                    .steps()
+                    .stream()
+                    .filter(step -> FIRST_STEP.equals(step.key()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("First step is not exist"))
+                    .value()
+                    .get("name");
+            postgresRepository.saveRoute(buildRouteData, firstStep);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error(e);

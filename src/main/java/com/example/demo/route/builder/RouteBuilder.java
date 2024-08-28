@@ -52,17 +52,7 @@ public class RouteBuilder {
             steps.add(sashokStep);
         });
 
-        String firstStep = (String) buildRouteData
-                .steps()
-                .stream()
-                .filter(step -> FIRST_STEP.equals(step.key()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("First step is not exist"))
-                .value()
-                .get("name");
-
         context.buildRoute(steps);
-        postgresRepository.saveRoute(buildRouteData, firstStep);
     }
 
     private FirstStep buildFirstStep(Map<String, Object> value) {

@@ -29,9 +29,12 @@ public class PostgresRepository {
     }
 
     public Long active(BaseModel baseModel) {
-        var selectSql = "select id from route where first_step = :firstStep order by version desc limit 1";
-        Long routeId = template.queryForObject(selectSql, Map.of("firstStep", baseModel.name()), Long.class);
-        if (isNull(routeId)) throw new RuntimeException();
+        RowMapper<Long> rowMapper = (rs, rowMap) -> rs.getLong("id");
+        var selectSql = "select id as id from route where first_step = :firstStep order by version desc limit 1";
+        Long routeId = template.query(selectSql, Map.of("firstStep", baseModel.receiverName()), rowMapper)
+                .stream()
+                .findFirst()
+                .orElseThrow();
 
         Map<String, Object> map = Map.of(
                 "json_variable", baseModel.jsonValue(),
