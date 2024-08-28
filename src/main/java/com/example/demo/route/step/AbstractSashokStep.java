@@ -1,6 +1,6 @@
 package com.example.demo.route.step;
 
-import com.example.demo.common.FatalException;
+import com.example.demo.common.CancelException;
 import com.example.demo.repository.cassandra.entity.StepEntity;
 import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.example.demo.common.Constant.CANCEL_PROCESSOR;
 import static com.example.demo.common.Constant.EXCEPTION_BACKOFF_MULTIPLIER;
 import static com.example.demo.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
 import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
@@ -38,10 +39,10 @@ public abstract class AbstractSashokStep extends RouteBuilder {
 
     @Override
     public void configure() {
-        onException(FatalException.class)
+        onException(CancelException.class)
                 .log(WARN, "Handling error: ${exception.stacktrace}")
                 .handled(true)
-                .process(exceptionHandler)
+                .process(CANCEL_PROCESSOR)
                 .end();
 
         onException(Exception.class)

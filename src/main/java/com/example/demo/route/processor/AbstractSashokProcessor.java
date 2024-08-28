@@ -1,6 +1,6 @@
 package com.example.demo.route.processor;
 
-import com.example.demo.common.FatalException;
+import com.example.demo.common.CancelException;
 import com.example.demo.repository.SashokRepository;
 import com.example.demo.route.model.BaseModel;
 import com.example.demo.common.JsonUtil;
@@ -36,7 +36,7 @@ public abstract class AbstractSashokProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         String body = exchange.getIn().getBody().toString();
         BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
-        if (isCancelled(baseModel)) throw new FatalException("Cancelled!");
+        if (isCancelled(baseModel)) throw new CancelException("Cancelled!");
 
         String receiverName = baseModel.receiverName();
         if (isLastStep(receiverName)) return;
