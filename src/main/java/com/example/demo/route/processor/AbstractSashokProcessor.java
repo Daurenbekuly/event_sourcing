@@ -1,9 +1,9 @@
 package com.example.demo.route.processor;
 
 import com.example.demo.common.CancelException;
-import com.example.demo.repository.cassandra.StoppedRouteRepository;
-import com.example.demo.route.model.BaseModel;
 import com.example.demo.common.JsonUtil;
+import com.example.demo.repository.postgres.PostgresRepository;
+import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
@@ -21,14 +21,14 @@ import java.util.concurrent.TimeoutException;
 import static com.example.demo.common.Constant.RECEIVER;
 import static com.example.demo.common.Constant.TIMEOUT;
 import static java.util.Objects.isNull;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public abstract class AbstractSashokProcessor implements Processor {
 
     protected final Logger log = LogManager.getLogger(getClass());
 
     @Autowired
-    private StoppedRouteRepository stoppedRouteRepository;
+    private PostgresRepository postgresRepository;
 
     /**
      * Execute method invoke in new virtual thread
@@ -70,7 +70,7 @@ public abstract class AbstractSashokProcessor implements Processor {
     }
 
     private boolean isCancelled(BaseModel baseModel) {
-        return stoppedRouteRepository.isCancelled(baseModel);
+        return postgresRepository.isCancelled(baseModel);
     }
 
 }

@@ -5,7 +5,6 @@ import com.example.demo.api.request.StartRequest;
 import com.example.demo.common.JsonUtil;
 import com.example.demo.repository.cassandra.CassandraRepository;
 import com.example.demo.repository.cassandra.entity.StepEntity;
-import com.example.demo.repository.cassandra.entity.StoppedRouteEntity;
 import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.builder.Components;
 import com.example.demo.route.builder.RouteBuilder;
@@ -112,7 +111,7 @@ public class Api {
 
     @PostMapping("/cancel/{sashokId}")
     public ResponseEntity<?> cancel(@PathVariable Long sashokId) {
-        cassandraRepository.stoppedRoute().save(new StoppedRouteEntity(sashokId));
+        postgresRepository.tryCancelled(sashokId);
         return ResponseEntity.ok().build();
     }
 

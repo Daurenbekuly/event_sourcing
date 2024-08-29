@@ -1,7 +1,7 @@
 package com.example.demo.consumer;
 
 import com.example.demo.common.JsonUtil;
-import com.example.demo.repository.cassandra.StoppedRouteRepository;
+import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class KafkaReadConsumer extends RouteBuilder {
 
     private final ProducerTemplate template;
-    private final StoppedRouteRepository stoppedRouteRepository;
+    private final PostgresRepository postgresRepository;
 
     @Value("${app.kafka.topic.sashok}")
     private String topic;
@@ -25,9 +25,9 @@ public class KafkaReadConsumer extends RouteBuilder {
     private String group;
 
     public KafkaReadConsumer(ProducerTemplate template,
-                             StoppedRouteRepository stoppedRouteRepository) {
+                             PostgresRepository postgresRepository) {
         this.template = template;
-        this.stoppedRouteRepository = stoppedRouteRepository;
+        this.postgresRepository = postgresRepository;
     }
 
     @Override
@@ -36,8 +36,8 @@ public class KafkaReadConsumer extends RouteBuilder {
                 "?brokers=" + broker +
                 "&groupId=" + group +
                 "&autoOffsetReset=latest" +
-                "&maxPollRecords=10" +
-                "&consumersCount=1";
+                "&maxPollRecords=100" +
+                "&consumersCount=2";
         from(uri)
                 .process(this::read)
                 .end();
@@ -47,7 +47,7 @@ public class KafkaReadConsumer extends RouteBuilder {
         var body = exchange.getIn().getBody().toString();
         var baseModel = JsonUtil.toObject(body, BaseModel.class)
                 .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
-        if (stoppedRouteRepository.isCancelled(baseModel)) return;
+        if (postgresRepository.isCancelled(baseModel)) return;
         template.asyncRequestBody(baseModel.receiverName(), body);
     }
 }
