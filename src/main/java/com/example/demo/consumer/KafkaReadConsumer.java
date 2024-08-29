@@ -1,7 +1,7 @@
 package com.example.demo.consumer;
 
 import com.example.demo.common.JsonUtil;
-import com.example.demo.repository.cassandra.StoppedStepRepository;
+import com.example.demo.repository.cassandra.StoppedRouteRepository;
 import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class KafkaReadConsumer extends RouteBuilder {
 
     private final ProducerTemplate template;
-    private final StoppedStepRepository stoppedStepRepository;
+    private final StoppedRouteRepository stoppedRouteRepository;
 
     @Value("${app.kafka.topic.sashok}")
     private String topic;
@@ -25,9 +25,9 @@ public class KafkaReadConsumer extends RouteBuilder {
     private String group;
 
     public KafkaReadConsumer(ProducerTemplate template,
-                             StoppedStepRepository stoppedStepRepository) {
+                             StoppedRouteRepository stoppedRouteRepository) {
         this.template = template;
-        this.stoppedStepRepository = stoppedStepRepository;
+        this.stoppedRouteRepository = stoppedRouteRepository;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class KafkaReadConsumer extends RouteBuilder {
         var body = exchange.getIn().getBody().toString();
         var baseModel = JsonUtil.toObject(body, BaseModel.class)
                 .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
-        if (stoppedStepRepository.isCancelled(baseModel)) return;
+        if (stoppedRouteRepository.isCancelled(baseModel)) return;
         template.asyncRequestBody(baseModel.receiverName(), body);
     }
 }

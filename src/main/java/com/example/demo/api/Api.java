@@ -5,7 +5,7 @@ import com.example.demo.api.request.StartRequest;
 import com.example.demo.common.JsonUtil;
 import com.example.demo.repository.cassandra.CassandraRepository;
 import com.example.demo.repository.cassandra.entity.StepEntity;
-import com.example.demo.repository.cassandra.entity.StoppedStepEntity;
+import com.example.demo.repository.cassandra.entity.StoppedRouteEntity;
 import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.builder.Components;
 import com.example.demo.route.builder.RouteBuilder;
@@ -78,13 +78,13 @@ public class Api {
                                   @PathVariable String stepFrom,
                                   @PathVariable String stepTo) {
         try {
-            String routeJson = postgresRepository.findRouteById(sashokId).orElseThrow();
-            Map<String, UUID> route = JsonUtil.toCollection(routeJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
-            UUID stepId = route.get(stepFrom);
+            String passedRouteJson = postgresRepository.findPassedRouteById(sashokId).orElseThrow();
+            Map<String, UUID> passedRoute = JsonUtil.toCollection(passedRouteJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            UUID stepId = passedRoute.get(stepFrom);
             StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
             UUID uuid = UUID.randomUUID();
-            route.put(stepTo, uuid);
-            BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), route);
+            passedRoute.put(stepTo, uuid);
+            BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), passedRoute);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(KAFKA_PATH_SASHOK, json);
             return new ResponseEntity<>(OK);
@@ -98,9 +98,9 @@ public class Api {
     public ResponseEntity<?> retry(@PathVariable UUID stepId) {
         try {
             StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
-            String routeJson = postgresRepository.findRouteById(stepEntity.getSashokId()).orElseThrow();
-            Map<String, UUID> route = JsonUtil.toCollection(routeJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
-            BaseModel baseModel = new BaseModel(stepEntity, route);
+            String passedRouteJson = postgresRepository.findPassedRouteById(stepEntity.getSashokId()).orElseThrow();
+            Map<String, UUID> passedRoute = JsonUtil.toCollection(passedRouteJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            BaseModel baseModel = new BaseModel(stepEntity, passedRoute);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(stepEntity.getName(), json);
             return new ResponseEntity<>(OK);
@@ -112,7 +112,7 @@ public class Api {
 
     @PostMapping("/cancel/{sashokId}")
     public ResponseEntity<?> cancel(@PathVariable Long sashokId) {
-        cassandraRepository.stoppedStep().save(new StoppedStepEntity(sashokId));
+        cassandraRepository.stoppedRoute().save(new StoppedRouteEntity(sashokId));
         return ResponseEntity.ok().build();
     }
 
@@ -152,10 +152,10 @@ public class Api {
     public ResponseEntity<?> continueUserTask(@RequestBody ContinueRequest request) {
         try {
             StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(request.stepId(), LocalDateTime.now()).orElseThrow();
-            String routeJson = postgresRepository.findRouteById(stepEntity.getSashokId()).orElseThrow();
+            String passedRouteJson = postgresRepository.findPassedRouteById(stepEntity.getSashokId()).orElseThrow();
             String jsonValue = JsonUtil.toJson(request.value()).orElseThrow();
-            Map<String, UUID> route = JsonUtil.toCollection(routeJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
-            BaseModel baseModel = new BaseModel(stepEntity, jsonValue, route);
+            Map<String, UUID> passedRoute = JsonUtil.toCollection(passedRouteJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            BaseModel baseModel = new BaseModel(stepEntity, jsonValue, passedRoute);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
             template.asyncRequestBody(stepEntity.getReceiverName(), json);
             return new ResponseEntity<>(OK);
@@ -163,6 +163,12 @@ public class Api {
             log.error(e);
             return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/route/{name}/deactivate")
+    public ResponseEntity<?> deactivateRoute(@PathVariable String name) {
+        postgresRepository.deactivateRoute(name);
+        return new ResponseEntity<>(OK);
     }
 
 }

@@ -6,14 +6,14 @@ import org.springframework.stereotype.Repository;
 public class CassandraRepository {
 
     private final StepRepository step;
-    private final StoppedStepRepository stoppedStep;
+    private final StoppedRouteRepository stoppedRoute;
     private final RetryRepository retry;
 
     public CassandraRepository(StepRepository step,
-                               StoppedStepRepository stoppedStep,
+                               StoppedRouteRepository stoppedRoute,
                                RetryRepository retry) {
         this.step = step;
-        this.stoppedStep = stoppedStep;
+        this.stoppedRoute = stoppedRoute;
         this.retry = retry;
     }
 
@@ -21,8 +21,8 @@ public class CassandraRepository {
         return step;
     }
 
-    public StoppedStepRepository stoppedStep() {
-        return stoppedStep;
+    public StoppedRouteRepository stoppedRoute() {
+        return stoppedRoute;
     }
 
     public RetryRepository retry() {

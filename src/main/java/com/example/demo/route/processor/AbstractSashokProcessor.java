@@ -44,10 +44,10 @@ public abstract class AbstractSashokProcessor implements Processor {
         UUID stepId = UUID.randomUUID();
         String receiver = exchange.getIn().getHeader(RECEIVER, String.class);
         String jsonValue = invoke(exchange, baseModel);
-        Map<String, UUID> route = baseModel.route();
-        route.put(receiverName, stepId);
+        Map<String, UUID> passedRoute = baseModel.passedRoute();
+        passedRoute.put(receiverName, stepId);
 
-        BaseModel newBaseModel = new BaseModel(baseModel, stepId, receiver, jsonValue, route);
+        BaseModel newBaseModel = new BaseModel(baseModel, stepId, receiver, jsonValue, passedRoute);
         String json = JsonUtil.toJson(newBaseModel).orElseThrow();
         exchange.getIn().setBody(json);
     }
@@ -66,7 +66,7 @@ public abstract class AbstractSashokProcessor implements Processor {
     }
 
     private boolean isCancelled(BaseModel baseModel) {
-        return SashokRepository.cassandra().stoppedStep().isCancelled(baseModel);
+        return SashokRepository.cassandra().stoppedRoute().isCancelled(baseModel);
     }
 
 }

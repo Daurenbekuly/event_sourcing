@@ -81,7 +81,7 @@ public abstract class AbstractSashokStep extends RouteBuilder {
         long sec = (redeliveryDelay) / 1000;
         double pow = Math.pow(exceptionBackOffMultiplier * sec, current) + Math.divideExact(timeout + 10000L, 1000);
         Instant nextRetryDate = Instant.now().plusSeconds((long) pow);
-        RetryEntity retryEntity = new RetryEntity(newBaseModel, nextRetryDate);
+        RetryEntity retryEntity = new RetryEntity(newBaseModel, nextRetryDate); //todo calc this
         cassandra().retry().save(retryEntity);
 
         if (current == 1) {

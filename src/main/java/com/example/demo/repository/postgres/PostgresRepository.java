@@ -73,15 +73,15 @@ public class PostgresRepository {
     }
 
     public void retry(BaseModel baseModel) {
-        String route = toJson(baseModel.route()).orElseThrow();
+        String passedRoute = toJson(baseModel.passedRoute()).orElseThrow();
         Map<String, Object> map = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
-                "route", route);
+                "passed_route", passedRoute);
         String sql = """
                 update sashok
                 set json_variable = :json_variable::JSONB,
-                    route = :route,
+                    passed_route = :passed_route,
                     status = 'ON_RETRY'
                 where id = :id;
                 """;
@@ -89,16 +89,16 @@ public class PostgresRepository {
     }
 
     public void success(BaseModel baseModel) {
-        String route = toJson(baseModel.route()).orElseThrow();
+        String passedRoute = toJson(baseModel.passedRoute()).orElseThrow();
         Map<String, Object> map = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
-                "route", route,
+                "passed_route", passedRoute,
                 "end_date", LocalDateTime.now());
         String sql = """
                 update sashok
                 set json_variable = :json_variable::JSONB,
-                    route = :route,
+                    passed_route = :passed_route,
                     end_date = :end_date,
                     status = 'SUCCESS'
                 where id = :id;
@@ -106,8 +106,8 @@ public class PostgresRepository {
         template.update(sql, map);
     }
 
-    public Optional<String> findRouteById(Long sashokId) {
-        var sql = "SELECT route FROM sashok WHERE id = :sashokId";
+    public Optional<String> findPassedRouteById(Long sashokId) {
+        var sql = "SELECT passed_route FROM sashok WHERE id = :sashokId";
         String route = template.queryForObject(sql, Map.of("sashokId", sashokId), String.class);
         return Optional.ofNullable(route);
     }
@@ -136,7 +136,7 @@ public class PostgresRepository {
     }
 
     public String findRouteFirstStepByName(String name) {
-        var selectSql = "select first_step from route where name = :name order by version desc limit 1";
+        var selectSql = "select first_step from route where name = :name and active_flag = true order by version desc limit 1";
         String firstStep = template.queryForObject(selectSql, Map.of("name", name), String.class);
         if (isNull(firstStep)) throw new RuntimeException();
         return firstStep;
@@ -165,5 +165,14 @@ public class PostgresRepository {
                 where id = :id;
                 """;
         template.update(sashokSql, sashokMap);
+    }
+
+    public void deactivateRoute(String name) {
+        String sashokSql = """
+                update route
+                set active_flag = false
+                where name = :name;
+                """;
+        template.update(sashokSql, Map.of("name", name));
     }
 }

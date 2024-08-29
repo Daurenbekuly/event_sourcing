@@ -7,15 +7,15 @@ import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.Instant;
 
-@Table(value = "stopped_step")
-public class StoppedStepEntity {
+@Table(value = "stopped_route")
+public class StoppedRouteEntity {
 
     @PrimaryKeyColumn(value = "sashok_id", type = PrimaryKeyType.CLUSTERED)
     private Long sashokId;
     @PrimaryKeyColumn(value = "create_date", type = PrimaryKeyType.PARTITIONED, ordering = Ordering.DESCENDING)
     private Instant createDate;
 
-    public StoppedStepEntity(Long sashokId) {
+    public StoppedRouteEntity(Long sashokId) {
         this.sashokId = sashokId;
         this.createDate = Instant.now();
     }

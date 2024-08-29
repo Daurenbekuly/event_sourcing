@@ -17,7 +17,7 @@ import java.util.UUID;
  * @param jsonValue
  * @param createDate
  * @param retryCount
- * @param route map with step name and step id
+ * @param passedRoute map with step name and step id
  * @param mainRouteSteps stack next main route step name
  */
 public record BaseModel(
@@ -28,7 +28,7 @@ public record BaseModel(
         String jsonValue,
         Instant createDate,
         Integer retryCount,
-        Map<String, UUID> route,
+        Map<String, UUID> passedRoute,
         Stack<String> mainRouteSteps) {
 
     public BaseModel(BaseModel baseModel, UUID stepId, String receiver, Integer retryCount) {
@@ -39,7 +39,7 @@ public record BaseModel(
                 baseModel.jsonValue(),
                 baseModel.createDate(),
                 retryCount,
-                baseModel.route(),
+                baseModel.passedRoute(),
                 baseModel.mainRouteSteps()
         );
     }
@@ -56,7 +56,7 @@ public record BaseModel(
                 new Stack<>());
     }
 
-    public BaseModel(UUID uuid, Long sashokId, String name, String receiverName, String jsonValue, Map<String, UUID> route) {
+    public BaseModel(UUID uuid, Long sashokId, String name, String receiverName, String jsonValue, Map<String, UUID> passedRoute) {
         this(uuid,
                 sashokId,
                 name,
@@ -64,7 +64,7 @@ public record BaseModel(
                 jsonValue,
                 Instant.now(),
                 -1,
-                route,
+                passedRoute,
                 new Stack<>());
     }
 
@@ -76,7 +76,7 @@ public record BaseModel(
                 baseModel.jsonValue,
                 Instant.now(),
                 -1,
-                baseModel.route,
+                baseModel.passedRoute,
                 baseModel.mainRouteSteps);
     }
 
@@ -88,7 +88,7 @@ public record BaseModel(
                 baseModel.jsonValue,
                 Instant.now(),
                 -1,
-                baseModel.route,
+                baseModel.passedRoute,
                 mainRouteSteps);
     }
 
@@ -100,11 +100,11 @@ public record BaseModel(
                 baseModel.jsonValue,
                 Instant.now(),
                 -1,
-                baseModel.route,
+                baseModel.passedRoute,
                 baseModel.mainRouteSteps);
     }
 
-    public BaseModel(BaseModel baseModel, UUID uuid, String receiver, String jsonValue, Map<String, UUID> route) {
+    public BaseModel(BaseModel baseModel, UUID uuid, String receiver, String jsonValue, Map<String, UUID> passedRoute) {
         this(uuid,
                 baseModel.sashokId,
                 baseModel.receiverName,
@@ -112,11 +112,11 @@ public record BaseModel(
                 jsonValue,
                 Instant.now(),
                 -1,
-                route,
+                passedRoute,
                 baseModel.mainRouteSteps);
     }
 
-    public BaseModel(StepEntity stepEntity, Map<String, UUID> route) {
+    public BaseModel(StepEntity stepEntity, Map<String, UUID> passedRoute) {
         this(stepEntity.getStepId(),
                 stepEntity.getSashokId(),
                 stepEntity.getName(),
@@ -124,11 +124,11 @@ public record BaseModel(
                 stepEntity.getJsonValue(),
                 stepEntity.getCreateDate(),
                 -1,
-                route,
+                passedRoute,
                 stepEntity.getMainRouteSteps());
     }
 
-    public BaseModel(StepEntity stepEntity, String jsonValue, Map<String, UUID> route) {
+    public BaseModel(StepEntity stepEntity, String jsonValue, Map<String, UUID> passedRoute) {
         this(stepEntity.getStepId(),
                 stepEntity.getSashokId(),
                 stepEntity.getName(),
@@ -136,7 +136,7 @@ public record BaseModel(
                 jsonValue,
                 stepEntity.getCreateDate(),
                 -1,
-                route,
+                passedRoute,
                 stepEntity.getMainRouteSteps());
     }
 }

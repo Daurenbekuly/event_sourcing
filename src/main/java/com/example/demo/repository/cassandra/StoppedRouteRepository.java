@@ -1,6 +1,6 @@
 package com.example.demo.repository.cassandra;
 
-import com.example.demo.repository.cassandra.entity.StoppedStepEntity;
+import com.example.demo.repository.cassandra.entity.StoppedRouteEntity;
 import com.example.demo.route.model.BaseModel;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.stereotype.Repository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface StoppedStepRepository extends CassandraRepository<StoppedStepEntity, UUID> {
+public interface StoppedRouteRepository extends CassandraRepository<StoppedRouteEntity, UUID> {
 
     Boolean existsBySashokId(Long sashokId);
 
