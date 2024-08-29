@@ -36,7 +36,6 @@ public class KafkaReadConsumer extends RouteBuilder {
                 "?brokers=" + broker +
                 "&groupId=" + group +
                 "&autoOffsetReset=latest" +
-                "&enableAutoCommit=false" +
                 "&maxPollRecords=10" +
                 "&consumersCount=1";
         from(uri)
