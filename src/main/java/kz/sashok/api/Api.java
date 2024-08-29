@@ -5,14 +5,12 @@ import kz.sashok.api.request.StartRequest;
 import kz.sashok.common.JsonUtil;
 import kz.sashok.repository.cassandra.CassandraRepository;
 import kz.sashok.repository.cassandra.entity.StepEntity;
-import kz.sashok.repository.cassandra.entity.StoppedRouteEntity;
 import kz.sashok.repository.postgres.PostgresRepository;
 import kz.sashok.route.builder.Components;
 import kz.sashok.route.builder.RouteBuilder;
 import kz.sashok.route.model.BaseModel;
 import kz.sashok.route.model.BuildRouteData;
 import com.fasterxml.jackson.core.type.TypeReference;
-import kz.sashok.common.KafkaPath;
 import org.apache.camel.ProducerTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
-import static com.example.demo.route.builder.Components.Steps.FIRST_STEP;
+import static kz.sashok.common.KafkaPath.KAFKA_PATH_SASHOK;
+import static kz.sashok.route.builder.Components.Steps.FIRST_STEP;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 

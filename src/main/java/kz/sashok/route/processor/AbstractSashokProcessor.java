@@ -19,10 +19,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
-import static com.example.demo.common.Constant.RECEIVER;
-import static com.example.demo.common.Constant.TIMEOUT;
 import static java.util.Objects.isNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static kz.sashok.common.Constant.RECEIVER;
+import static kz.sashok.common.Constant.TIMEOUT;
 
 public abstract class AbstractSashokProcessor implements Processor {
 
