@@ -31,6 +31,7 @@ logging:
 app:
   kafka:
     bootstrap-servers: localhost:29092
+    producer-additional: '&retries=5&lingerMs=100&producerBatchSize=65536'
     topic:
       sashok: sashok-topic
     group:
