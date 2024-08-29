@@ -1,8 +1,8 @@
 package com.example.demo.consumer;
 
-import com.example.demo.common.JsonUtil;
-import com.example.demo.repository.cassandra.StoppedRouteRepository;
-import com.example.demo.route.model.BaseModel;
+import kz.sashok.common.JsonUtil;
+import kz.sashok.repository.cassandra.StoppedRouteRepository;
+import kz.sashok.route.model.BaseModel;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
@@ -36,6 +36,8 @@ public class KafkaReadConsumer extends RouteBuilder {
                 "?brokers=" + broker +
                 "&groupId=" + group +
                 "&autoOffsetReset=latest" +
+                "&enableAutoCommit=false" +
+                "&maxPollRecords=10" +
                 "&consumersCount=1";
         from(uri)
                 .process(this::read)

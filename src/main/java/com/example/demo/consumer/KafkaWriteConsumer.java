@@ -1,9 +1,9 @@
 package com.example.demo.consumer;
 
-import com.example.demo.repository.cassandra.entity.StepEntity;
-import com.example.demo.route.model.BaseModel;
-import com.example.demo.repository.cassandra.StepRepository;
-import com.example.demo.common.JsonUtil;
+import kz.sashok.common.JsonUtil;
+import kz.sashok.repository.cassandra.StepRepository;
+import kz.sashok.repository.cassandra.entity.StepEntity;
+import kz.sashok.route.model.BaseModel;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +35,8 @@ public class KafkaWriteConsumer extends RouteBuilder {
                 "&groupId=" + group +
                 "&autoOffsetReset=latest" +
                 "&enableAutoCommit=false" +
-                "&maxPollRecords=10";
+                "&maxPollRecords=10" +
+                "&consumersCount=1";
         from(uri)
                 .process(this::write)
                 .end();
