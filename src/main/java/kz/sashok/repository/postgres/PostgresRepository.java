@@ -175,4 +175,19 @@ public class PostgresRepository {
                 """;
         template.update(sashokSql, Map.of("name", name));
     }
+
+    public boolean isCancelled(BaseModel baseModel) {
+        String sql = "select count(*) from sashok where id = :id and status = 'TRY_CANCEL'";
+        Integer count = template.queryForObject(sql, Map.of("id", baseModel.sashokId()), Integer.class);
+        return count != null && count > 0;
+    }
+
+    public void tryCancelled(Long sashokId) {
+        String sashokSql = """
+                update sashok
+                set status = 'TRY_CANCEL'
+                where id = :id;
+                """;
+        template.update(sashokSql, Map.of("id", sashokId));
+    }
 }

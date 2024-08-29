@@ -1,7 +1,7 @@
 package kz.sashok.route.processor;
 
 import kz.sashok.common.CancelException;
-import kz.sashok.repository.cassandra.StoppedRouteRepository;
+import kz.sashok.repository.postgres.PostgresRepository;
 import kz.sashok.route.model.BaseModel;
 import kz.sashok.common.JsonUtil;
 import kz.sashok.common.Constant;
@@ -19,15 +19,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
+import static com.example.demo.common.Constant.RECEIVER;
+import static com.example.demo.common.Constant.TIMEOUT;
 import static java.util.Objects.isNull;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public abstract class AbstractSashokProcessor implements Processor {
 
     protected final Logger log = LogManager.getLogger(getClass());
 
     @Autowired
-    private StoppedRouteRepository stoppedRouteRepository;
+    private PostgresRepository postgresRepository;
 
     /**
      * Execute method invoke in new virtual thread
@@ -45,7 +47,7 @@ public abstract class AbstractSashokProcessor implements Processor {
         if (isLastStep(receiverName)) return;
 
         UUID stepId = UUID.randomUUID();
-        String receiver = exchange.getIn().getHeader(Constant.RECEIVER, String.class);
+        String receiver = exchange.getIn().getHeader(RECEIVER, String.class);
         String jsonValue = invoke(exchange, baseModel);
         Map<String, UUID> passedRoute = baseModel.passedRoute();
         passedRoute.put(receiverName, stepId);
@@ -58,7 +60,7 @@ public abstract class AbstractSashokProcessor implements Processor {
     private String invoke(Exchange exchange, BaseModel baseModel) throws InterruptedException, ExecutionException, TimeoutException {
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
         Future<String> future = executor.submit(() -> invoke(baseModel.jsonValue()));
-        Long timeout = exchange.getIn().getHeader(Constant.TIMEOUT, Long.class);
+        Long timeout = exchange.getIn().getHeader(TIMEOUT, Long.class);
         return future.get(timeout, MILLISECONDS);
     }
 
@@ -69,7 +71,7 @@ public abstract class AbstractSashokProcessor implements Processor {
     }
 
     private boolean isCancelled(BaseModel baseModel) {
-        return stoppedRouteRepository.isCancelled(baseModel);
+        return postgresRepository.isCancelled(baseModel);
     }
 
 }

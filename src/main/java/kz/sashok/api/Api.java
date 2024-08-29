@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
+import static com.example.demo.route.builder.Components.Steps.FIRST_STEP;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -85,7 +87,7 @@ public class Api {
             passedRoute.put(stepTo, uuid);
             BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), passedRoute);
             String json = JsonUtil.toJson(baseModel).orElseThrow();
-            template.asyncRequestBody(KafkaPath.KAFKA_PATH_SASHOK, json);
+            template.asyncRequestBody(KAFKA_PATH_SASHOK, json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
             log.error(e);
@@ -111,7 +113,7 @@ public class Api {
 
     @PostMapping("/cancel/{sashokId}")
     public ResponseEntity<?> cancel(@PathVariable Long sashokId) {
-        cassandraRepository.stoppedRoute().save(new StoppedRouteEntity(sashokId));
+        postgresRepository.tryCancelled(sashokId);
         return ResponseEntity.ok().build();
     }
 
@@ -122,7 +124,7 @@ public class Api {
             var firstStep = (String) buildRouteData
                     .steps()
                     .stream()
-                    .filter(step -> Components.Steps.FIRST_STEP.equals(step.key()))
+                    .filter(step -> FIRST_STEP.equals(step.key()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("First step is not exist"))
                     .value()
