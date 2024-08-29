@@ -34,7 +34,8 @@ public class KafkaWriteConsumer extends RouteBuilder {
                 "?brokers=" + broker +
                 "&groupId=" + group +
                 "&autoOffsetReset=latest" +
-                "&consumersCount=1";
+                "&enableAutoCommit=false" +
+                "&maxPollRecords=10";
         from(uri)
                 .process(this::write)
                 .end();

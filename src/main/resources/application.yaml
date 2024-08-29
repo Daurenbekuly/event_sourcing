@@ -13,20 +13,6 @@ spring:
   threads:
     virtual:
       enabled: true
-  kafka:
-    consumer:
-      group-id: group_id
-      auto-offset-reset: earliest
-      max-poll-records: 1
-      enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      bootstrap-servers: localhost:29092
-    producer:
-      retries: 0
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      bootstrap-servers: localhost:29092
 
 server:
   tomcat:

@@ -14,6 +14,6 @@ public class KafkaPath {
     }
 
     public static String toPath(String topic, String bootstrapServers) {
-        return "kafka:" + topic + "?brokers=" + bootstrapServers;
+        return "kafka:" + topic + "?brokers=" + bootstrapServers + "&retries=5";
     }
 }
