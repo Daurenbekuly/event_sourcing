@@ -9,14 +9,12 @@ public class KafkaPath {
     public static String KAFKA_PATH_SASHOK;
 
     public KafkaPath(@Value("${app.kafka.bootstrap-servers}") String bootstrapServers,
-                     @Value("${app.kafka.topic.sashok}") String sashok) {
-        KafkaPath.KAFKA_PATH_SASHOK = toPath(sashok, bootstrapServers);
+                     @Value("${app.kafka.topic.sashok}") String sashok,
+                     @Value("${app.kafka.producer-additional}") String additional) {
+        KafkaPath.KAFKA_PATH_SASHOK = toPath(sashok, bootstrapServers, additional);
     }
 
-    public static String toPath(String topic, String bootstrapServers) {
-        return "kafka:" + topic + "?brokers=" + bootstrapServers
-                + "&retries=5"
-                + "&lingerMs=100"
-                + "&producerBatchSize=65536";
+    public static String toPath(String topic, String bootstrapServers, String additional) {
+        return "kafka:" + topic + "?brokers=" + bootstrapServers + additional;
     }
 }
