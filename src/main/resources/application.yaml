@@ -7,7 +7,7 @@ spring:
     hikari:
       minimum-idle: 50
       maximum-pool-size: 200
-      idle-timeout: 120000
+      idle-timeout: 30000
       leak-detection-threshold: 60000
       max-lifetime: 50000
   threads:

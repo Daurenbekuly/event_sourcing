@@ -1,13 +1,14 @@
 package com.example.demo.route.processor;
 
 import com.example.demo.common.CancelException;
-import com.example.demo.repository.SashokRepository;
+import com.example.demo.repository.cassandra.StoppedRouteRepository;
 import com.example.demo.route.model.BaseModel;
 import com.example.demo.common.JsonUtil;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 import java.util.UUID;
@@ -25,6 +26,9 @@ import static java.util.concurrent.TimeUnit.*;
 public abstract class AbstractSashokProcessor implements Processor {
 
     protected final Logger log = LogManager.getLogger(getClass());
+
+    @Autowired
+    private StoppedRouteRepository stoppedRouteRepository;
 
     /**
      * Execute method invoke in new virtual thread
@@ -66,7 +70,7 @@ public abstract class AbstractSashokProcessor implements Processor {
     }
 
     private boolean isCancelled(BaseModel baseModel) {
-        return SashokRepository.cassandra().stoppedRoute().isCancelled(baseModel);
+        return stoppedRouteRepository.isCancelled(baseModel);
     }
 
 }
