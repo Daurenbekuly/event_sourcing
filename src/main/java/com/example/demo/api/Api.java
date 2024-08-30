@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
-import static com.example.demo.route.builder.Components.Steps.FIRST_STEP;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -122,7 +121,7 @@ public class Api {
             var firstStep = (String) buildRouteData
                     .steps()
                     .stream()
-                    .filter(step -> FIRST_STEP.equals(step.key()))
+                    .filter(step -> "firstStepBuilder".equals(step.key()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("First step is not exist"))
                     .value()
@@ -143,7 +142,7 @@ public class Api {
 
     @GetMapping("/steps")
     public ResponseEntity<?> getAllSteps() {
-        List<Components.Steps> steps = components.getAllSteps();
+        List<String> steps = components.getAllSteps();
         return ResponseEntity.ok(steps);
     }
 

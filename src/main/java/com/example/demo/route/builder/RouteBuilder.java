@@ -20,9 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
 import static com.example.demo.common.JsonUtil.toObject;
 
 @Service
@@ -44,7 +42,7 @@ public class RouteBuilder {
         List<AbstractSashokStep> steps = new ArrayList<>();
         buildRouteData.steps().forEach(buildStep -> {
             var sashokStep = applicationContext
-                    .getBean(buildStep.key(), StepBuilder.class)
+                    .getBean(buildStep.key(), IStepBuilder.class)
                     .build(buildStep.value());
             steps.add(sashokStep);
         });
