@@ -2,16 +2,9 @@ package kz.sashok.route.builder;
 
 import kz.sashok.repository.postgres.PostgresRepository;
 import kz.sashok.route.SachokContext;
-import kz.sashok.route.builder.step.StepBuilder;
+import kz.sashok.route.builder.step.IStepBuilder;
 import kz.sashok.route.model.BuildRouteData;
-import kz.sashok.route.model.ErrorHandler;
 import kz.sashok.route.step.AbstractSashokStep;
-import kz.sashok.route.step.LastStep;
-import kz.sashok.route.step.LastStepBm;
-import kz.sashok.route.step.Step;
-import kz.sashok.route.step.StepAfterUt;
-import kz.sashok.route.step.StepBeforeUt;
-import kz.sashok.route.step.StepSp;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
@@ -19,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static kz.sashok.common.Constant.EXECUTION_TIME_TO_WAIT;
 import static kz.sashok.common.JsonUtil.toObject;
 
 @Service
@@ -43,7 +34,7 @@ public class RouteBuilder {
         List<AbstractSashokStep> steps = new ArrayList<>();
         buildRouteData.steps().forEach(buildStep -> {
             var sashokStep = applicationContext
-                    .getBean(buildStep.key(), StepBuilder.class)
+                    .getBean(buildStep.key(), IStepBuilder.class)
                     .build(buildStep.value());
             steps.add(sashokStep);
         });
