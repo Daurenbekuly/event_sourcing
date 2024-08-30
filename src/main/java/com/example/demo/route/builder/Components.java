@@ -1,7 +1,7 @@
 package com.example.demo.route.builder;
 
+import com.example.demo.route.builder.step.IStepBuilder;
 import com.example.demo.route.processor.AbstractSashokProcessor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +11,6 @@ import java.util.List;
 public class Components {
 
     private final ApplicationContext applicationContext;
-
-    @Value("${app.steps}")
-    private List<String> steps;
 
     public Components(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -28,7 +25,11 @@ public class Components {
     }
 
     public List<String> getAllSteps() {
-        return steps;
+        return applicationContext
+                .getBeansOfType(IStepBuilder.class)
+                .keySet()
+                .stream()
+                .toList();
     }
 
 }

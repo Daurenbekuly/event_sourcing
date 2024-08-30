@@ -1,6 +1,6 @@
-package kz.sashok.route.builder.step;
+package com.example.demo.route.builder.step;
 
-import kz.sashok.route.step.AbstractSashokStep;
+import com.example.demo.route.step.AbstractSashokStep;
 
 import java.util.Map;
 

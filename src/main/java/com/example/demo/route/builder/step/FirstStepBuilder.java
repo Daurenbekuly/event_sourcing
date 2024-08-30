@@ -1,12 +1,12 @@
-package kz.sashok.route.builder.step;
+package com.example.demo.route.builder.step;
 
-import kz.sashok.route.model.ErrorHandler;
-import kz.sashok.route.step.FirstStep;
+import com.example.demo.route.model.ErrorHandler;
+import com.example.demo.route.step.FirstStep;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static kz.sashok.common.Constant.EXECUTION_TIME_TO_WAIT;
+import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
 
 @Service
 public class FirstStepBuilder implements IStepBuilder {
