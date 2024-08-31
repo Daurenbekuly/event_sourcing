@@ -187,6 +187,7 @@ public class PostgresRepository {
         return Boolean.TRUE.equals(template.queryForObject(sql, Map.of("id", baseModel.sashokId()), Boolean.class));
     }
 
+    @Transactional
     public void tryCancelled(Long sashokId) {
         String sashokSql = """
                 update sashok
