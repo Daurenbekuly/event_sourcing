@@ -177,9 +177,14 @@ public class PostgresRepository {
     }
 
     public boolean isCancelled(BaseModel baseModel) {
-        String sql = "select count(*) from sashok where id = :id and status = 'TRY_CANCEL'";
-        Integer count = template.queryForObject(sql, Map.of("id", baseModel.sashokId()), Integer.class);
-        return count != null && count > 0;
+        String sql = """
+                select EXISTS (
+                    select 1
+                    from cancelled
+                    where sashok_id = :sashok_id
+                );
+                """;
+        return Boolean.TRUE.equals(template.queryForObject(sql, Map.of("id", baseModel.sashokId()), Boolean.class));
     }
 
     public void tryCancelled(Long sashokId) {
@@ -189,5 +194,14 @@ public class PostgresRepository {
                 where id = :id;
                 """;
         template.update(sashokSql, Map.of("id", sashokId));
+
+        Map<String, Object> errorMessageMap = Map.of(
+                "sashok_id", sashokId,
+                "create_date", LocalDateTime.now());
+        String errorMessageSql = """
+                insert into cancelled(id, sashok_id, create_date)
+                values (default, :sashok_id, :create_date);
+                """;
+        template.update(errorMessageSql, errorMessageMap);
     }
 }
