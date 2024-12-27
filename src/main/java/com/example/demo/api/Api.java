@@ -2,7 +2,6 @@ package com.example.demo.api;
 
 import com.example.demo.api.request.ContinueRequest;
 import com.example.demo.api.request.StartRequest;
-import com.example.demo.common.JsonUtil;
 import com.example.demo.repository.cassandra.CassandraRepository;
 import com.example.demo.repository.cassandra.entity.StepEntity;
 import com.example.demo.repository.postgres.PostgresRepository;
@@ -22,11 +21,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.example.demo.common.JsonUtil.toJsonOrElseThrow;
+import static com.example.demo.common.JsonUtil.toTypeOrElseThrow;
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
@@ -59,10 +59,10 @@ public class Api {
     public ResponseEntity<?> start(@RequestBody StartRequest request) {
         try {
             String firstStep = postgresRepository.findRouteFirstStepByName(request.name());
-            String jsonValue = JsonUtil.toJson(request.value()).orElseThrow();
+            String jsonValue = toJsonOrElseThrow(request.value());
             UUID stepId = UUID.randomUUID();
             BaseModel baseModel = new BaseModel(stepId, "api:camel", firstStep, jsonValue);
-            String json = JsonUtil.toJson(baseModel).orElseThrow();
+            String json = toJsonOrElseThrow(baseModel);
             template.asyncRequestBody(firstStep, json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
@@ -76,14 +76,14 @@ public class Api {
                                   @PathVariable String stepFrom,
                                   @PathVariable String stepTo) {
         try {
-            String passedRouteJson = postgresRepository.findPassedRouteById(sashokId).orElseThrow();
-            Map<String, UUID> passedRoute = JsonUtil.toCollection(passedRouteJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            String passedRouteJson = postgresRepository.findPassedRouteByIdOrElseThrow(sashokId);
+            Map<String, UUID> passedRoute = toTypeOrElseThrow(passedRouteJson, new TypeReference<>() {});
             UUID stepId = passedRoute.get(stepFrom);
-            StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
+            StepEntity stepEntity = cassandraRepository.findFirstByStepIdOrElseThrow(stepId);
             UUID uuid = UUID.randomUUID();
             passedRoute.put(stepTo, uuid);
             BaseModel baseModel = new BaseModel(uuid, stepEntity.getSashokId(), stepEntity.getName(), stepTo, stepEntity.getJsonValue(), passedRoute);
-            String json = JsonUtil.toJson(baseModel).orElseThrow();
+            String json = toJsonOrElseThrow(baseModel);
             template.asyncRequestBody(KAFKA_PATH_SASHOK, json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
@@ -95,11 +95,11 @@ public class Api {
     @PostMapping("/retry/{stepId}")
     public ResponseEntity<?> retry(@PathVariable UUID stepId) {
         try {
-            StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(stepId, LocalDateTime.now()).orElseThrow();
-            String passedRouteJson = postgresRepository.findPassedRouteById(stepEntity.getSashokId()).orElseThrow();
-            Map<String, UUID> passedRoute = JsonUtil.toCollection(passedRouteJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            StepEntity stepEntity = cassandraRepository.findFirstByStepIdOrElseThrow(stepId);
+            String passedRouteJson = postgresRepository.findPassedRouteByIdOrElseThrow(stepEntity.getSashokId());
+            Map<String, UUID> passedRoute = toTypeOrElseThrow(passedRouteJson, new TypeReference<>() {});
             BaseModel baseModel = new BaseModel(stepEntity, passedRoute);
-            String json = JsonUtil.toJson(baseModel).orElseThrow();
+            String json = toJsonOrElseThrow(baseModel);
             template.asyncRequestBody(stepEntity.getName(), json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {
@@ -110,7 +110,7 @@ public class Api {
 
     @PostMapping("/cancel/{sashokId}")
     public ResponseEntity<?> cancel(@PathVariable Long sashokId) {
-        postgresRepository.tryCancelled(sashokId);
+        postgresRepository.tryCancel(sashokId);
         return ResponseEntity.ok().build();
     }
 
@@ -149,12 +149,12 @@ public class Api {
     @PostMapping("/continue/user-task")
     public ResponseEntity<?> continueUserTask(@RequestBody ContinueRequest request) {
         try {
-            StepEntity stepEntity = cassandraRepository.step().findFirstByStepIdAndCreateDateLessThan(request.stepId(), LocalDateTime.now()).orElseThrow();
-            String passedRouteJson = postgresRepository.findPassedRouteById(stepEntity.getSashokId()).orElseThrow();
-            String jsonValue = JsonUtil.toJson(request.value()).orElseThrow();
-            Map<String, UUID> passedRoute = JsonUtil.toCollection(passedRouteJson, new TypeReference<Map<String, UUID>>() {}).orElseThrow();
+            StepEntity stepEntity = cassandraRepository.findFirstByStepIdOrElseThrow(request.stepId());
+            String passedRouteJson = postgresRepository.findPassedRouteByIdOrElseThrow(stepEntity.getSashokId());
+            String jsonValue = toJsonOrElseThrow(request.value());
+            Map<String, UUID> passedRoute = toTypeOrElseThrow(passedRouteJson, new TypeReference<>() {});
             BaseModel baseModel = new BaseModel(stepEntity, jsonValue, passedRoute);
-            String json = JsonUtil.toJson(baseModel).orElseThrow();
+            String json = toJsonOrElseThrow(baseModel);
             template.asyncRequestBody(stepEntity.getReceiverName(), json);
             return new ResponseEntity<>(OK);
         } catch (Exception e) {

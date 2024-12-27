@@ -21,8 +21,8 @@ import static com.example.demo.common.Constant.MAXIMUM_REDELIVERIES;
 import static com.example.demo.common.Constant.RECEIVER;
 import static com.example.demo.common.Constant.REDELIVERY_DELAY;
 import static com.example.demo.common.Constant.TIMEOUT;
-import static com.example.demo.common.JsonUtil.toJson;
-import static com.example.demo.common.JsonUtil.toObject;
+import static com.example.demo.common.JsonUtil.toJsonOrElseThrow;
+import static com.example.demo.common.JsonUtil.toObjectOrElseThrow;
 import static com.example.demo.repository.SashokRepository.cassandra;
 import static com.example.demo.repository.SashokRepository.postgres;
 import static org.apache.camel.Exchange.REDELIVERY_COUNTER;
@@ -72,7 +72,7 @@ public abstract class AbstractSashokStep extends RouteBuilder {
         Integer availableTryCount = max - current;
         log.info("Current try {} of {}", current, max);
         String body = exchange.getIn().getBody().toString();
-        BaseModel baseModel = toObject(body, BaseModel.class).orElseThrow();
+        BaseModel baseModel = toObjectOrElseThrow(body, BaseModel.class);
         Map<String, UUID> passedRoute = baseModel.passedRoute();
         String exchangeId = exchange.getExchangeId();
         UUID uuid = UUID.nameUUIDFromBytes(exchangeId.getBytes());
@@ -91,7 +91,7 @@ public abstract class AbstractSashokStep extends RouteBuilder {
             passedRoute.put(baseModel.receiverName(), saved.getStepId());
             postgres().retry(newBaseModel);
         }
-        String json = toJson(newBaseModel).orElseThrow();
+        String json = toJsonOrElseThrow(newBaseModel);
         exchange.getIn().setBody(json);
     }
 

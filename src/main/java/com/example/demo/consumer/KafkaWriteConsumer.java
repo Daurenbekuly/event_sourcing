@@ -1,6 +1,5 @@
 package com.example.demo.consumer;
 
-import com.example.demo.common.JsonUtil;
 import com.example.demo.repository.cassandra.StepRepository;
 import com.example.demo.repository.cassandra.entity.StepEntity;
 import com.example.demo.route.model.BaseModel;
@@ -8,6 +7,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import static com.example.demo.common.JsonUtil.toObjectOrElseThrow;
 
 @Component
 public class KafkaWriteConsumer extends RouteBuilder {
@@ -20,7 +21,7 @@ public class KafkaWriteConsumer extends RouteBuilder {
     @Value("${app.kafka.bootstrap-servers}")
     private String broker;
 
-    @Value("${app.kafka.group.cassandra}")
+    @Value("${app.kafka.group.write}")
     private String group;
 
     public KafkaWriteConsumer(StepRepository stepRepository) {
@@ -43,8 +44,7 @@ public class KafkaWriteConsumer extends RouteBuilder {
 
     public void write(Exchange exchange) {
         var body = exchange.getIn().getBody().toString();
-        var baseModel = JsonUtil.toObject(body, BaseModel.class)
-                .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
+        var baseModel = toObjectOrElseThrow(body, BaseModel.class);
         var stepEntity = new StepEntity(baseModel);
         stepRepository.save(stepEntity);
     }

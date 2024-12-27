@@ -2,17 +2,19 @@ package com.example.demo.demo.processor;
 
 import com.example.demo.demo.ListNode;
 import com.example.demo.route.processor.AbstractSashokProcessor;
-import com.example.demo.common.JsonUtil;
 import org.springframework.stereotype.Service;
+
+import static com.example.demo.common.JsonUtil.toJsonOrElseThrow;
+import static com.example.demo.common.JsonUtil.toObjectOrElseThrow;
 
 @Service
 public class Processor7 extends AbstractSashokProcessor {
 
     @Override
     public String invoke(String jsonValue) {
-        ListNode listNode = JsonUtil.toObject(jsonValue, ListNode.class).orElseThrow();
+        ListNode listNode = toObjectOrElseThrow(jsonValue, ListNode.class);
         ListNode listNode1 = new ListNode("Processor7", listNode);
         log.info(jsonValue);
-        return JsonUtil.toJson(listNode1).orElseThrow();
+        return toJsonOrElseThrow(listNode1);
     }
 }

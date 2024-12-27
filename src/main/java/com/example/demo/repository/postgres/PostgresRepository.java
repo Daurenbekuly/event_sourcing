@@ -2,6 +2,7 @@ package com.example.demo.repository.postgres;
 
 import com.example.demo.route.model.BaseModel;
 import com.example.demo.route.model.BuildRouteData;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -12,9 +13,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static com.example.demo.common.JsonUtil.toJson;
+import static com.example.demo.common.JsonUtil.toJsonOrElseThrow;
 import static java.util.Objects.isNull;
 
 @Repository
@@ -29,12 +29,17 @@ public class PostgresRepository {
     }
 
     public Long active(BaseModel baseModel) {
-        RowMapper<Long> rowMapper = (rs, rowMap) -> rs.getLong("id");
-        var selectSql = "select id as id from route where first_step = :firstStep order by version desc limit 1";
-        Long routeId = template.query(selectSql, Map.of("firstStep", baseModel.receiverName()), rowMapper)
-                .stream()
-                .findFirst()
-                .orElseThrow();
+        String firstStep = baseModel.receiverName();
+        String sql = """
+                select id
+                from route
+                where first_step = :firstStep
+                  and active_flag = true
+                order by version desc
+                limit 1;
+                """;
+        Long routeId = template.queryForObject(sql, Map.of("firstStep", firstStep), Long.class);
+        if (isNull(routeId)) throw new EntityNotFoundException("Route not found with firstStep: %s".formatted(firstStep));
 
         Map<String, Object> map = Map.of(
                 "json_variable", baseModel.jsonValue(),
@@ -51,14 +56,14 @@ public class PostgresRepository {
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
                 "end_date", LocalDateTime.now());
-        String sashokSql = """
+        String sql = """
                 update sashok
                 set json_variable = :json_variable::JSONB,
                     end_date = :end_date,
                     status = 'ERROR'
                 where id = :id;
                 """;
-        template.update(sashokSql, sashokMap);
+        template.update(sql, sashokMap);
 
         Map<String, Object> errorMessageMap = Map.of(
                 "sashok_id", baseModel.sashokId(),
@@ -73,7 +78,7 @@ public class PostgresRepository {
     }
 
     public void retry(BaseModel baseModel) {
-        String passedRoute = toJson(baseModel.passedRoute()).orElseThrow();
+        String passedRoute = toJsonOrElseThrow(baseModel.passedRoute());
         Map<String, Object> map = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
@@ -89,7 +94,7 @@ public class PostgresRepository {
     }
 
     public void success(BaseModel baseModel) {
-        String passedRoute = toJson(baseModel.passedRoute()).orElseThrow();
+        String passedRoute = toJsonOrElseThrow(baseModel.passedRoute());
         Map<String, Object> map = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
@@ -106,21 +111,33 @@ public class PostgresRepository {
         template.update(sql, map);
     }
 
-    public Optional<String> findPassedRouteById(Long sashokId) {
-        var sql = "SELECT passed_route FROM sashok WHERE id = :sashokId";
+    public String findPassedRouteByIdOrElseThrow(Long sashokId) {
+        String sql = """
+                select passed_route
+                from sashok
+                where id = :sashokId
+                  and status != 'SUCCESS'
+                """;
         String route = template.queryForObject(sql, Map.of("sashokId", sashokId), String.class);
-        return Optional.ofNullable(route);
+        if (isNull(route)) throw new EntityNotFoundException("Sashok not found with ID: " + sashokId);
+        return route;
     }
 
     public void saveRoute(BuildRouteData buildRouteData, String firstStep) {
         RowMapper<Integer> rowMapper = (rs, rowMap) -> rs.getInt("version");
-        var selectSql = "select r.version as version from route r where name = :name order by version desc limit 1";
-        Integer version = template.query(selectSql, Map.of("name", buildRouteData.name()), rowMapper)
+        String sql = """
+                 select version as version
+                 from route
+                 where name = :name
+                 order by version desc
+                 limit 1
+                 """;
+        Integer version = template.query(sql, Map.of("name", buildRouteData.name()), rowMapper)
                 .stream()
                 .findFirst()
                 .orElse(0)
                 + 1;
-        String createData = toJson(buildRouteData).orElseThrow();
+        String createData = toJsonOrElseThrow(buildRouteData);
 
         Map<String, Object> insertMap = Map.of(
                 "name", buildRouteData.name(),
@@ -136,18 +153,26 @@ public class PostgresRepository {
     }
 
     public String findRouteFirstStepByName(String name) {
-        var selectSql = "select first_step from route where name = :name and active_flag = true order by version desc limit 1";
-        String firstStep = template.queryForObject(selectSql, Map.of("name", name), String.class);
+        String sql = """
+                select first_step
+                from route
+                where name = :name
+                  and active_flag = true
+                order by version desc
+                limit 1
+                """;
+        String firstStep = template.queryForObject(sql, Map.of("name", name), String.class);
         if (isNull(firstStep)) throw new RuntimeException();
         return firstStep;
     }
 
     public List<String> createDataList() {
         RowMapper<String> rowMapper = (rs, rowMap) -> rs.getString("createData");
-        var selectSql = """
-                select distinct on (name) r.create_data as createData
+        String selectSql = """
+                select r.create_data as createData
                 from route r
-                order by name, version desc;
+                where r.active_flag = true
+                order by r.version desc;
                 """;
         return template.query(selectSql, rowMapper);
     }
@@ -157,23 +182,23 @@ public class PostgresRepository {
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
                 "end_date", LocalDateTime.now());
-        String sashokSql = """
+        String sql = """
                 update sashok
                 set json_variable = :json_variable::JSONB,
                     end_date = :end_date,
                     status = 'CANCELLED'
                 where id = :id;
                 """;
-        template.update(sashokSql, sashokMap);
+        template.update(sql, sashokMap);
     }
 
     public void deactivateRoute(String name) {
-        String sashokSql = """
+        String sql = """
                 update route
                 set active_flag = false
                 where name = :name;
                 """;
-        template.update(sashokSql, Map.of("name", name));
+        template.update(sql, Map.of("name", name));
     }
 
     public boolean isCancelled(BaseModel baseModel) {
@@ -184,17 +209,17 @@ public class PostgresRepository {
                     where sashok_id = :sashok_id
                 );
                 """;
-        return Boolean.TRUE.equals(template.queryForObject(sql, Map.of("id", baseModel.sashokId()), Boolean.class));
+        return Boolean.TRUE.equals(template.queryForObject(sql, Map.of("sashok_id", baseModel.sashokId()), Boolean.class));
     }
 
     @Transactional
-    public void tryCancelled(Long sashokId) {
-        String sashokSql = """
+    public void tryCancel(Long sashokId) {
+        String sql = """
                 update sashok
                 set status = 'TRY_CANCEL'
                 where id = :id;
                 """;
-        template.update(sashokSql, Map.of("id", sashokId));
+        template.update(sql, Map.of("id", sashokId));
 
         Map<String, Object> errorMessageMap = Map.of(
                 "sashok_id", sashokId,

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.demo.common.JsonUtil.toObject;
+import static com.example.demo.common.JsonUtil.toObjectOrElseThrow;
 
 @Service
 public class RouteBuilder {
@@ -33,10 +33,10 @@ public class RouteBuilder {
     public void invoke(BuildRouteData buildRouteData) {
         List<AbstractSashokStep> steps = new ArrayList<>();
         buildRouteData.steps().forEach(buildStep -> {
-            var sashokStep = applicationContext
+            AbstractSashokStep step = applicationContext
                     .getBean(buildStep.key(), IStepBuilder.class)
                     .build(buildStep.value());
-            steps.add(sashokStep);
+            steps.add(step);
         });
         context.buildRoute(steps);
     }
@@ -45,7 +45,7 @@ public class RouteBuilder {
     public void autoBuild() {
         List<String> buildRouteList = postgresRepository.createDataList();
         buildRouteList.forEach(jsonBuildRoute -> {
-            BuildRouteData buildRoute = toObject(jsonBuildRoute, BuildRouteData.class).orElseThrow();
+            BuildRouteData buildRoute = toObjectOrElseThrow(jsonBuildRoute, BuildRouteData.class);
             invoke(buildRoute);
         });
     }

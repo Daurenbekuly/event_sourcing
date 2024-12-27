@@ -8,6 +8,7 @@ import org.apache.logging.log4j.*;
 import java.util.*;
 
 public class JsonUtil {
+
     private static final Logger log = LogManager.getLogger(JsonUtil.class);
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -21,6 +22,15 @@ public class JsonUtil {
         }
     }
 
+    public static <T> T toObjectOrElseThrow(String json, Class<T> clazz) {
+        try {
+            return objectMapper.readValue(json, clazz);
+        } catch (Exception e) {
+            log.error("Json read value error: {}", e.getMessage());
+            throw new IllegalArgumentException(e);
+        }
+    }
+
     public static Optional<String> toJson(Object object) {
         try {
             String result = objectMapper.writeValueAsString(object);
@@ -31,13 +41,31 @@ public class JsonUtil {
         }
     }
 
-    public static <T> Optional<T> toCollection(String json, TypeReference<T> typeReference) {
+    public static String toJsonOrElseThrow(Object object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (Exception e) {
+            log.error("Json write value error: {}", e.getMessage());
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static <T> Optional<T> toType(String json, TypeReference<T> typeReference) {
         try {
             T result = objectMapper.readValue(json, typeReference);
             return Optional.of(result);
         } catch (Exception e) {
-            log.error("Json read value error: {}", e.getMessage());
+            log.error("Json type value error: {}", e.getMessage());
             return Optional.empty();
+        }
+    }
+
+    public static <T> T toTypeOrElseThrow(String json, TypeReference<T> typeReference) {
+        try {
+            return objectMapper.readValue(json, typeReference);
+        } catch (Exception e) {
+            log.error("Json type value error: {}", e.getMessage());
+            throw new IllegalArgumentException(e);
         }
     }
 }

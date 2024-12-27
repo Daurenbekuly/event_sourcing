@@ -1,7 +1,6 @@
 package com.example.demo.route.processor;
 
 import com.example.demo.common.CancelException;
-import com.example.demo.common.JsonUtil;
 import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
@@ -20,6 +19,8 @@ import java.util.concurrent.TimeoutException;
 
 import static com.example.demo.common.Constant.RECEIVER;
 import static com.example.demo.common.Constant.TIMEOUT;
+import static com.example.demo.common.JsonUtil.toJsonOrElseThrow;
+import static com.example.demo.common.JsonUtil.toObjectOrElseThrow;
 import static java.util.Objects.isNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -39,7 +40,7 @@ public abstract class AbstractSashokProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
         String body = exchange.getIn().getBody().toString();
-        BaseModel baseModel = JsonUtil.toObject(body, BaseModel.class).orElseThrow();
+        BaseModel baseModel = toObjectOrElseThrow(body, BaseModel.class);
         if (isCancelled(baseModel)) throw new CancelException("Cancelled!");
 
         String receiverName = baseModel.receiverName();
@@ -52,7 +53,7 @@ public abstract class AbstractSashokProcessor implements Processor {
         passedRoute.put(receiverName, stepId);
 
         BaseModel newBaseModel = new BaseModel(baseModel, stepId, receiver, jsonValue, passedRoute);
-        String json = JsonUtil.toJson(newBaseModel).orElseThrow();
+        String json = toJsonOrElseThrow(newBaseModel);
         exchange.getIn().setBody(json);
     }
 

@@ -1,6 +1,5 @@
 package com.example.demo.consumer;
 
-import com.example.demo.common.JsonUtil;
 import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
@@ -8,6 +7,8 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import static com.example.demo.common.JsonUtil.toObjectOrElseThrow;
 
 @Component
 public class KafkaReadConsumer extends RouteBuilder {
@@ -21,7 +22,7 @@ public class KafkaReadConsumer extends RouteBuilder {
     @Value("${app.kafka.bootstrap-servers}")
     private String broker;
 
-    @Value("${app.kafka.group.step}")
+    @Value("${app.kafka.group.read}")
     private String group;
 
     public KafkaReadConsumer(ProducerTemplate template,
@@ -35,9 +36,9 @@ public class KafkaReadConsumer extends RouteBuilder {
         String uri = "kafka:" + topic +
                 "?brokers=" + broker +
                 "&groupId=" + group +
-                "&autoOffsetReset=latest" +
+                "&autoOffsetReset=earliest" +
                 "&maxPollRecords=100" +
-                "&consumersCount=2";
+                "&consumersCount=1";
         from(uri)
                 .process(this::read)
                 .end();
@@ -45,8 +46,7 @@ public class KafkaReadConsumer extends RouteBuilder {
 
     public void read(Exchange exchange) {
         var body = exchange.getIn().getBody().toString();
-        var baseModel = JsonUtil.toObject(body, BaseModel.class)
-                .orElseThrow(() -> new RuntimeException("Error KafkaConsumer toObject"));
+        var baseModel = toObjectOrElseThrow(body, BaseModel.class);
         if (postgresRepository.isCancelled(baseModel)) return;
         template.asyncRequestBody(baseModel.receiverName(), body);
     }
