@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://host.docker.internal:5432/alibi
+    url: jdbc:postgresql://localhost:5432/alibi
     username: alibi
     password: alibi
     driver-class-name: org.postgresql.Driver
@@ -30,7 +30,7 @@ logging:
 
 app:
   kafka:
-    bootstrap-servers: kafka-s:9094
+    bootstrap-servers: localhost:9094
     producer-additional: '&retries=5&lingerMs=100&producerBatchSize=65536'
     topic:
       sashok: sashok-topic
