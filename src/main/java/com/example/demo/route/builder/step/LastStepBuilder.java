@@ -12,7 +12,7 @@ import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
 public class LastStepBuilder implements IStepBuilder {
 
     public LastStep build(Map<String, Object> value, String routeName, Integer version) {
-        String name = value.get("name") + ":r:" + routeName + ":v:" + version;
+        String name = "direct" + ":r:" + routeName + ":s:" + value.get("name") + ":v:" + version;
         String processor = (String) value.get("processor");
         ErrorHandler errorHandler = (ErrorHandler) value.getOrDefault("errorHandler", new ErrorHandler());
         Long executionTimeToWait = (Long) value.getOrDefault("executionTimeToWait", EXECUTION_TIME_TO_WAIT);

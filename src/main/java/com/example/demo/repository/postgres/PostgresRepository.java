@@ -33,7 +33,7 @@ public class PostgresRepository {
     public Long active(BaseModel baseModel) {
         String firstStep = baseModel.receiverName();
         String[] split = firstStep.split(":");
-        String routeName = split[4];
+        String routeName = split[2];
         String sql = """
                 select id
                 from route
@@ -238,6 +238,6 @@ public class PostgresRepository {
         if (isNull(result)) throw new EntityNotFoundException("Route not found with name: " + routeName);
         Object firstStep = result.get("firstStep");
         Object version = result.get("version");
-        return firstStep + ":r:" + routeName + ":v:" + version;
+        return "direct" + ":r:" + routeName + ":s:" + firstStep + ":v:" + version;
     }
 }
