@@ -58,7 +58,7 @@ public class Api {
     @PostMapping("/start")
     public ResponseEntity<?> start(@RequestBody StartRequest request) {
         try {
-            String firstStep = postgresRepository.findRouteFirstStepByName(request.name());
+            String firstStep = postgresRepository.findFirstStepOrElseThrow(request.name());
             String jsonValue = toJsonOrElseThrow(request.value());
             UUID stepId = UUID.randomUUID();
             BaseModel baseModel = new BaseModel(stepId, "api:camel", firstStep, jsonValue);
@@ -117,16 +117,9 @@ public class Api {
     @PostMapping("/build")
     public ResponseEntity<?> buildRoute(@RequestBody BuildRouteData buildRouteData) {
         try {
-            routeBuilder.invoke(buildRouteData);
-            var firstStep = (String) buildRouteData
-                    .steps()
-                    .stream()
-                    .filter(step -> "firstStepBuilder".equals(step.key()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("First step is not exist"))
-                    .value()
-                    .get("name");
-            postgresRepository.saveRoute(buildRouteData, firstStep);
+            Integer version = postgresRepository.findRouteLastVersion(buildRouteData.name());
+            routeBuilder.invoke(buildRouteData, version);
+            postgresRepository.saveRoute(buildRouteData, version);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error(e);

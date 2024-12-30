@@ -6,5 +6,5 @@ import java.util.Map;
 
 public interface IStepBuilder {
 
-    AbstractSashokStep build(Map<String, Object> value);
+    AbstractSashokStep build(Map<String, Object> value, String routeName, Integer version);
 }

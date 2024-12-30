@@ -8,17 +8,17 @@ import static com.example.demo.common.Constant.RECEIVER;
 import static com.example.demo.common.Constant.TIMEOUT;
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
 
-public class StepSp extends AbstractSashokStep {
+public class FirstStepSp extends AbstractSashokStep {
 
     private final String name;
     private final String subRouteReceiver;
     private final String mainRouteReceiver;
     private final String processor;
 
-    public StepSp(String name,
-                  String subRouteReceiver,
-                  String mainRouteReceiver,
-                  String processor) {
+    public FirstStepSp(String name,
+                       String subRouteReceiver,
+                       String mainRouteReceiver,
+                       String processor) {
         nameValidator(name);
         nameValidator(subRouteReceiver);
         nameValidator(mainRouteReceiver);
@@ -28,11 +28,11 @@ public class StepSp extends AbstractSashokStep {
         this.processor = processor;
     }
 
-    public StepSp(String name,
-                  String subRouteReceiver,
-                  String mainRouteReceiver,
-                  String processor,
-                  Long executionTimeToWait) {
+    public FirstStepSp(String name,
+                       String subRouteReceiver,
+                       String mainRouteReceiver,
+                       String processor,
+                       Long executionTimeToWait) {
         nameValidator(name);
         nameValidator(subRouteReceiver);
         nameValidator(mainRouteReceiver);
@@ -43,11 +43,11 @@ public class StepSp extends AbstractSashokStep {
         this.executionTimeToWait = executionTimeToWait;
     }
 
-    public StepSp(String name,
-                  String subRouteReceiver,
-                  String mainRouteReceiver,
-                  String processor,
-                  ErrorHandler errorHandler) {
+    public FirstStepSp(String name,
+                       String subRouteReceiver,
+                       String mainRouteReceiver,
+                       String processor,
+                       ErrorHandler errorHandler) {
         nameValidator(name);
         nameValidator(subRouteReceiver);
         nameValidator(mainRouteReceiver);
@@ -61,12 +61,12 @@ public class StepSp extends AbstractSashokStep {
         this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
     }
 
-    public StepSp(String name,
-                  String subRouteReceiver,
-                  String mainRouteReceiver,
-                  String processor,
-                  ErrorHandler errorHandler,
-                  Long executionTimeToWait) {
+    public FirstStepSp(String name,
+                       String subRouteReceiver,
+                       String mainRouteReceiver,
+                       String processor,
+                       ErrorHandler errorHandler,
+                       Long executionTimeToWait) {
         nameValidator(name);
         nameValidator(subRouteReceiver);
         nameValidator(mainRouteReceiver);

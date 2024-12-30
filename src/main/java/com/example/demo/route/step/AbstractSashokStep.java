@@ -96,7 +96,7 @@ public abstract class AbstractSashokStep extends RouteBuilder {
     }
 
     public static void nameValidator(String name) {
-        String pattern = "direct:r.*?:(\\d+):s.*?:(\\d+)";
+        String pattern = "direct:s:.+?:r:.+?:v:.+?";
         Pattern regexPattern = Pattern.compile(pattern);
         Matcher matcher = regexPattern.matcher(name);
         if (!matcher.matches())

@@ -2,7 +2,9 @@ package com.example.demo.repository.postgres;
 
 import com.example.demo.route.model.BaseModel;
 import com.example.demo.route.model.BuildRouteData;
+import com.example.demo.route.model.RouteData;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -30,16 +32,18 @@ public class PostgresRepository {
 
     public Long active(BaseModel baseModel) {
         String firstStep = baseModel.receiverName();
+        String[] split = firstStep.split(":");
+        String routeName = split[4];
         String sql = """
                 select id
                 from route
-                where first_step = :firstStep
+                where name = :name
                   and active_flag = true
                 order by version desc
                 limit 1;
                 """;
-        Long routeId = template.queryForObject(sql, Map.of("firstStep", firstStep), Long.class);
-        if (isNull(routeId)) throw new EntityNotFoundException("Route not found with firstStep: %s".formatted(firstStep));
+        Long routeId = template.queryForObject(sql, Map.of("name", routeName), Long.class);
+        if (isNull(routeId)) throw new EntityNotFoundException("Route not found with name: " + routeName);
 
         Map<String, Object> map = Map.of(
                 "json_variable", baseModel.jsonValue(),
@@ -123,53 +127,30 @@ public class PostgresRepository {
         return route;
     }
 
-    public void saveRoute(BuildRouteData buildRouteData, String firstStep) {
-        RowMapper<Integer> rowMapper = (rs, rowMap) -> rs.getInt("version");
-        String sql = """
-                 select version as version
-                 from route
-                 where name = :name
-                 order by version desc
-                 limit 1
-                 """;
-        Integer version = template.query(sql, Map.of("name", buildRouteData.name()), rowMapper)
-                .stream()
-                .findFirst()
-                .orElse(0)
-                + 1;
+    public void saveRoute(BuildRouteData buildRouteData, Integer version) {
         String createData = toJsonOrElseThrow(buildRouteData);
 
         Map<String, Object> insertMap = Map.of(
                 "name", buildRouteData.name(),
                 "create_data", createData,
                 "version", version,
-                "first_step", firstStep,
-                "create_date", LocalDateTime.now());
+                "create_date", LocalDateTime.now(),
+                "active_flag", true);
         String insertSql = """
-                insert into route (id, name, create_data, version, first_step, create_date)
-                values (default, :name, :create_data::JSONB, :version, :first_step, :create_date);
+                insert into route (id, name, create_data, version, create_date, active_flag)
+                values (default, :name, :create_data::JSONB, :version, :create_date, :active_flag);
                 """;
         template.update(insertSql, insertMap);
     }
 
-    public String findRouteFirstStepByName(String name) {
-        String sql = """
-                select first_step
-                from route
-                where name = :name
-                  and active_flag = true
-                order by version desc
-                limit 1
-                """;
-        String firstStep = template.queryForObject(sql, Map.of("name", name), String.class);
-        if (isNull(firstStep)) throw new RuntimeException();
-        return firstStep;
-    }
-
-    public List<String> createDataList() {
-        RowMapper<String> rowMapper = (rs, rowMap) -> rs.getString("createData");
+    public List<RouteData> findActiveRoutes() {
+        RowMapper<RouteData> rowMapper = (rs, rowMap) -> new RouteData(
+                rs.getString("createData"),
+                rs.getInt("version")
+        );
         String selectSql = """
-                select r.create_data as createData
+                select r.create_data as createData,
+                       r.version     as version
                 from route r
                 where r.active_flag = true
                 order by r.version desc;
@@ -229,5 +210,34 @@ public class PostgresRepository {
                 values (default, :sashok_id, :create_date);
                 """;
         template.update(errorMessageSql, errorMessageMap);
+    }
+
+    public Integer findRouteLastVersion(String routeName) {
+        String sql = """
+                select version
+                from route
+                where name = :name
+                order by version desc
+                limit 1
+                """;
+        Integer version = template.queryForObject(sql, Map.of("name", routeName), Integer.class);
+        if (isNull(version)) version = 1;
+        return version;
+    }
+
+    public String findFirstStepOrElseThrow(String routeName) {
+        String sql = """
+                select r.create_data -> 'steps' -> 0 -> 'value' ->> 'name' as firstStep,
+                       r.version as version
+                from route r
+                where r.active_flag = true
+                order by r.version desc
+                limit 1
+                """;
+        Map<String, Object> result = template.queryForObject(sql, Map.of("name", routeName), new ColumnMapRowMapper());
+        if (isNull(result)) throw new EntityNotFoundException("Route not found with name: " + routeName);
+        Object firstStep = result.get("firstStep");
+        Object version = result.get("version");
+        return firstStep + ":r:" + routeName + ":v:" + version;
     }
 }

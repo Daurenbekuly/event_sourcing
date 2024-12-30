@@ -28,7 +28,7 @@ public class SachokContext {
             try {
                 context.addRoutes(step);
             } catch (Exception e) {
-                throw new RuntimeException("Add routes");
+                throw new RuntimeException("Add routes: " + e.getMessage());
             }
         }
         context.getRouteController().start();

@@ -8,19 +8,19 @@ import static com.example.demo.common.Constant.LAST_STEP_PROCESSOR;
 import static com.example.demo.common.Constant.TIMEOUT;
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
 
-public class LastStepBm extends AbstractSashokStep {
+public class LastStepSp extends AbstractSashokStep {
 
     private final String name;
     private final String processor;
 
-    public LastStepBm(String name,
+    public LastStepSp(String name,
                       String processor) {
         nameValidator(name);
         this.name = name;
         this.processor = processor;
     }
 
-    public LastStepBm(String name,
+    public LastStepSp(String name,
                       String processor,
                       Long executionTimeToWait) {
         nameValidator(name);
@@ -29,7 +29,7 @@ public class LastStepBm extends AbstractSashokStep {
         this.executionTimeToWait = executionTimeToWait;
     }
 
-    public LastStepBm(String name,
+    public LastStepSp(String name,
                       String processor,
                       ErrorHandler errorHandler) {
         nameValidator(name);
@@ -41,7 +41,7 @@ public class LastStepBm extends AbstractSashokStep {
         this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
     }
 
-    public LastStepBm(String name,
+    public LastStepSp(String name,
                       String processor,
                       ErrorHandler errorHandler,
                       Long executionTimeToWait) {

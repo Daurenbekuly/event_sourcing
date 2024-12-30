@@ -4,6 +4,7 @@ import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.SachokContext;
 import com.example.demo.route.builder.step.IStepBuilder;
 import com.example.demo.route.model.BuildRouteData;
+import com.example.demo.route.model.RouteData;
 import com.example.demo.route.step.AbstractSashokStep;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
@@ -30,12 +31,14 @@ public class RouteBuilder {
         this.applicationContext = applicationContext;
     }
 
-    public void invoke(BuildRouteData buildRouteData) {
+    public void invoke(BuildRouteData buildRouteData, Integer version) {
         List<AbstractSashokStep> steps = new ArrayList<>();
+        String routeName = buildRouteData.name();
+
         buildRouteData.steps().forEach(buildStep -> {
             AbstractSashokStep step = applicationContext
                     .getBean(buildStep.key(), IStepBuilder.class)
-                    .build(buildStep.value());
+                    .build(buildStep.value(), routeName, version);
             steps.add(step);
         });
         context.buildRoute(steps);
@@ -43,10 +46,10 @@ public class RouteBuilder {
 
     @EventListener(ApplicationReadyEvent.class)
     public void autoBuild() {
-        List<String> buildRouteList = postgresRepository.createDataList();
-        buildRouteList.forEach(jsonBuildRoute -> {
-            BuildRouteData buildRoute = toObjectOrElseThrow(jsonBuildRoute, BuildRouteData.class);
-            invoke(buildRoute);
+        List<RouteData> routeDataList = postgresRepository.findActiveRoutes();
+        routeDataList.forEach(routeData -> {
+            BuildRouteData buildRoute = toObjectOrElseThrow(routeData.createData(), BuildRouteData.class);
+            invoke(buildRoute, routeData.version());
         });
     }
 }
