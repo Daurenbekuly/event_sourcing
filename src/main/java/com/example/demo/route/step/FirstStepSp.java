@@ -18,52 +18,6 @@ public class FirstStepSp extends AbstractSashokStep {
     public FirstStepSp(String name,
                        String subRouteReceiver,
                        String mainRouteReceiver,
-                       String processor) {
-        nameValidator(name);
-        nameValidator(subRouteReceiver);
-        nameValidator(mainRouteReceiver);
-        this.name = name;
-        this.subRouteReceiver = subRouteReceiver;
-        this.mainRouteReceiver = mainRouteReceiver;
-        this.processor = processor;
-    }
-
-    public FirstStepSp(String name,
-                       String subRouteReceiver,
-                       String mainRouteReceiver,
-                       String processor,
-                       Long executionTimeToWait) {
-        nameValidator(name);
-        nameValidator(subRouteReceiver);
-        nameValidator(mainRouteReceiver);
-        this.name = name;
-        this.subRouteReceiver = subRouteReceiver;
-        this.mainRouteReceiver = mainRouteReceiver;
-        this.processor = processor;
-        this.executionTimeToWait = executionTimeToWait;
-    }
-
-    public FirstStepSp(String name,
-                       String subRouteReceiver,
-                       String mainRouteReceiver,
-                       String processor,
-                       ErrorHandler errorHandler) {
-        nameValidator(name);
-        nameValidator(subRouteReceiver);
-        nameValidator(mainRouteReceiver);
-        this.name = name;
-        this.subRouteReceiver = subRouteReceiver;
-        this.mainRouteReceiver = mainRouteReceiver;
-        this.processor = processor;
-        this.redeliveryDelay = errorHandler.redeliveryDelay();
-        this.exceptionHandler = errorHandler.exceptionHandler();
-        this.maximumRedeliveries = errorHandler.maximumRedeliveries();
-        this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
-    }
-
-    public FirstStepSp(String name,
-                       String subRouteReceiver,
-                       String mainRouteReceiver,
                        String processor,
                        ErrorHandler errorHandler,
                        Long executionTimeToWait) {

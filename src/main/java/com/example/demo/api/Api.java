@@ -117,7 +117,7 @@ public class Api {
     @PostMapping("/build")
     public ResponseEntity<?> buildRoute(@RequestBody BuildRouteData buildRouteData) {
         try {
-            Integer version = postgresRepository.findRouteLastVersion(buildRouteData.name());
+            Integer version = postgresRepository.findRouteLastVersion(buildRouteData.name()) + 1;
             routeBuilder.invoke(buildRouteData, version);
             postgresRepository.saveRoute(buildRouteData, version);
             return ResponseEntity.ok().build();

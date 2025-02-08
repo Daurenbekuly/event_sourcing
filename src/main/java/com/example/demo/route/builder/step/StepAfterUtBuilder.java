@@ -17,7 +17,6 @@ public class StepAfterUtBuilder implements IStepBuilder {
         String processor = processor(value);
         ErrorHandler errorHandler = errorHandler(value);
         Long executionTimeToWait = executionTimeToWait(value);
-        validate(name, receiver, processor, errorHandler, executionTimeToWait);
         return new StepAfterUt(name, receiver, processor, errorHandler, executionTimeToWait);
     }
 }

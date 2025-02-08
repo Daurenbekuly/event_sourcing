@@ -15,7 +15,6 @@ public class FirstStepBuilder implements IStepBuilder {
         String processor = processor(value);
         ErrorHandler errorHandler = errorHandler(value);
         Long executionTimeToWait = executionTimeToWait(value);
-        validate(name, receiver, processor, errorHandler, executionTimeToWait);
         return new FirstStep(name, receiver, processor, errorHandler, executionTimeToWait);
     }
 }

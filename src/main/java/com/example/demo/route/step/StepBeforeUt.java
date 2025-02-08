@@ -13,43 +13,6 @@ public class StepBeforeUt extends AbstractSashokStep {
     private final String processor;
 
     public StepBeforeUt(String name,
-                        String receiver,
-                        String processor) {
-        nameValidator(name);
-        nameValidator(receiver);
-        this.name = name;
-        this.receiver = receiver;
-        this.processor = processor;
-    }
-
-    public StepBeforeUt(String name,
-                        String receiver,
-                        String processor,
-                        Long executionTimeToWait) {
-        nameValidator(name);
-        nameValidator(receiver);
-        this.name = name;
-        this.receiver = receiver;
-        this.processor = processor;
-        this.executionTimeToWait = executionTimeToWait;
-    }
-
-    public StepBeforeUt(String name,
-                        String receiver,
-                        String processor,
-                        ErrorHandler errorHandler) {
-        nameValidator(name);
-        nameValidator(receiver);
-        this.name = name;
-        this.receiver = receiver;
-        this.processor = processor;
-        this.redeliveryDelay = errorHandler.redeliveryDelay();
-        this.exceptionHandler = errorHandler.exceptionHandler();
-        this.maximumRedeliveries = errorHandler.maximumRedeliveries();
-        this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
-    }
-
-    public StepBeforeUt(String name,
                 String receiver,
                 String processor,
                 ErrorHandler errorHandler,

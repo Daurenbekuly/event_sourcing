@@ -68,4 +68,23 @@ public class JsonUtil {
             throw new IllegalArgumentException(e);
         }
     }
+
+    public static <T> Optional<T> toType(Object object, Class<T> clazz) {
+        try {
+            T result = objectMapper.convertValue(object, clazz);
+            return Optional.of(result);
+        } catch (Exception e) {
+            log.error("Json type value error: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public static <T> T toTypeOrElseThrow(Object object, Class<T> clazz) {
+        try {
+            return objectMapper.convertValue(object, clazz);
+        } catch (Exception e) {
+            log.error("Json type value error: {}", e.getMessage());
+            throw new IllegalArgumentException(e);
+        }
+    }
 }

@@ -18,7 +18,6 @@ public class FirstStepSpBuilder implements IStepBuilder {
         String processor = processor(value);
         ErrorHandler errorHandler = errorHandler(value);
         Long executionTimeToWait = executionTimeToWait(value);
-        validate(name, subRouteReceiver, mainRouteReceiver, processor, errorHandler, executionTimeToWait);
         return new FirstStepSp(name, subRouteReceiver, mainRouteReceiver, processor, errorHandler, executionTimeToWait);
     }
 }

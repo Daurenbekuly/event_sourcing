@@ -16,7 +16,6 @@ public class LastStepBmBuilder implements IStepBuilder {
         String processor = processor(value);
         ErrorHandler errorHandler = errorHandler(value);
         Long executionTimeToWait = executionTimeToWait(value);
-        validate(name, processor, errorHandler, executionTimeToWait);
         return new LastStepSp(name, processor, errorHandler, executionTimeToWait);
     }
 }

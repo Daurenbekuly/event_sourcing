@@ -4,10 +4,10 @@ import com.example.demo.route.model.ErrorHandler;
 import com.example.demo.route.step.AbstractSashokStep;
 
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
+import static com.example.demo.common.JsonUtil.toTypeOrElseThrow;
+import static java.util.Objects.isNull;
 
 public interface IStepBuilder {
 
@@ -30,23 +30,26 @@ public interface IStepBuilder {
     }
 
     default String processor(Map<String, Object> value) {
+        var errorHandler = value.get("processor");
+        if (isNull(errorHandler)) throw new NullPointerException();
         return (String) value.get("processor");
     }
 
     default ErrorHandler errorHandler(Map<String, Object> value) {
-        return (ErrorHandler) value.getOrDefault("errorHandler", new ErrorHandler());
+        var errorHandler = value.get("errorHandler");
+        if (isNull(errorHandler)) {
+            return new ErrorHandler();
+        } else {
+            return toTypeOrElseThrow(errorHandler, ErrorHandler.class);
+        }
     }
 
     default Long executionTimeToWait(Map<String, Object> value) {
         return (Long) value.getOrDefault("executionTimeToWait", EXECUTION_TIME_TO_WAIT);
     }
 
-    default void validate(Object... o) {
-        boolean isAnyNull = Stream.of(o).anyMatch(Objects::isNull);
-        if (isAnyNull) throw new IllegalArgumentException();
-    }
-
     private String camelUrl(Object step, String routeName, Integer version) {
+        if (isNull(step)) throw new NullPointerException();
         return "direct" + ":r:" + routeName + ":s:" + step + ":v:" + version;
     }
 }

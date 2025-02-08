@@ -18,27 +18,6 @@ public record ErrorHandler(
                 getRedeliveryDelay(null));
     }
 
-    public ErrorHandler(Integer maximumRedeliveries, Double exceptionBackOffMultiplier, Long redeliveryDelay) {
-        this(getExceptionHandler(null),
-                getMaximumRedeliveries(maximumRedeliveries),
-                getExceptionBackOffMultiplier(exceptionBackOffMultiplier),
-                getRedeliveryDelay(redeliveryDelay));
-    }
-
-    public ErrorHandler(Integer maximumRedeliveries) {
-        this(getExceptionHandler(null),
-                getMaximumRedeliveries(maximumRedeliveries),
-                getExceptionBackOffMultiplier(null),
-                getRedeliveryDelay(null));
-    }
-
-    public ErrorHandler(String exceptionHandler, Integer maximumRedeliveries) {
-        this(getExceptionHandler(exceptionHandler),
-                getMaximumRedeliveries(maximumRedeliveries),
-                getExceptionBackOffMultiplier(null),
-                getRedeliveryDelay(null));
-    }
-
     private static String getExceptionHandler(String exceptionHandler) {
         return exceptionHandler != null ? exceptionHandler : EXCEPTION_HANDLER_PROCESSOR;
     }

@@ -14,34 +14,6 @@ public class LastStepSp extends AbstractSashokStep {
     private final String processor;
 
     public LastStepSp(String name,
-                      String processor) {
-        nameValidator(name);
-        this.name = name;
-        this.processor = processor;
-    }
-
-    public LastStepSp(String name,
-                      String processor,
-                      Long executionTimeToWait) {
-        nameValidator(name);
-        this.name = name;
-        this.processor = processor;
-        this.executionTimeToWait = executionTimeToWait;
-    }
-
-    public LastStepSp(String name,
-                      String processor,
-                      ErrorHandler errorHandler) {
-        nameValidator(name);
-        this.name = name;
-        this.processor = processor;
-        this.redeliveryDelay = errorHandler.redeliveryDelay();
-        this.exceptionHandler = errorHandler.exceptionHandler();
-        this.maximumRedeliveries = errorHandler.maximumRedeliveries();
-        this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
-    }
-
-    public LastStepSp(String name,
                       String processor,
                       ErrorHandler errorHandler,
                       Long executionTimeToWait) {
