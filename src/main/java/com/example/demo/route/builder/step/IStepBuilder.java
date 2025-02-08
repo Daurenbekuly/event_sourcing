@@ -45,7 +45,12 @@ public interface IStepBuilder {
     }
 
     default Long executionTimeToWait(Map<String, Object> value) {
-        return (Long) value.getOrDefault("executionTimeToWait", EXECUTION_TIME_TO_WAIT);
+        var executionTimeToWait = value.get("executionTimeToWait");
+        if (isNull(executionTimeToWait)) {
+            return EXECUTION_TIME_TO_WAIT;
+        } else {
+            return toTypeOrElseThrow(executionTimeToWait, Long.class);
+        }
     }
 
     private String camelUrl(Object step, String routeName, Integer version) {

@@ -15,6 +15,7 @@ public class Processor9 extends AbstractSashokProcessor {
         ListNode listNode = toObjectOrElseThrow(jsonValue, ListNode.class);
         ListNode listNode1 = new ListNode("Processor9", listNode);
         log.info(jsonValue);
-        return toJsonOrElseThrow(listNode1);
+        throw new RuntimeException();
+//        return toJsonOrElseThrow(listNode1);
     }
 }
