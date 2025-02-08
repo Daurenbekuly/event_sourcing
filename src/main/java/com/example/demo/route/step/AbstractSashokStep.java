@@ -1,6 +1,7 @@
 package com.example.demo.route.step;
 
 import com.example.demo.common.CancelException;
+import com.example.demo.common.ForbiddenException;
 import com.example.demo.repository.cassandra.entity.RetryEntity;
 import com.example.demo.repository.cassandra.entity.StepEntity;
 import com.example.demo.route.model.BaseModel;
@@ -17,6 +18,7 @@ import static com.example.demo.common.Constant.CANCEL_PROCESSOR;
 import static com.example.demo.common.Constant.EXCEPTION_BACKOFF_MULTIPLIER;
 import static com.example.demo.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
 import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
+import static com.example.demo.common.Constant.FORBIDDEN_PROCESSOR;
 import static com.example.demo.common.Constant.MAXIMUM_REDELIVERIES;
 import static com.example.demo.common.Constant.RECEIVER;
 import static com.example.demo.common.Constant.REDELIVERY_DELAY;
@@ -41,9 +43,15 @@ public abstract class AbstractSashokStep extends RouteBuilder {
     @Override
     public void configure() {
         onException(CancelException.class)
-                .log(WARN, "Handling error: ${exception.stacktrace}")
+                .log(ERROR, "Handling error: ${exception.stacktrace}")
                 .handled(true)
                 .process(CANCEL_PROCESSOR)
+                .end();
+
+        onException(ForbiddenException.class)
+                .log(ERROR, "Handling error: ${exception.stacktrace}")
+                .handled(true)
+                .process(FORBIDDEN_PROCESSOR)
                 .end();
 
         onException(Exception.class)

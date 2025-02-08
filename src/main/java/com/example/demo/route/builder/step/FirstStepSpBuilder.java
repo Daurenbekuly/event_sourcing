@@ -12,12 +12,13 @@ import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
 public class FirstStepSpBuilder implements IStepBuilder {
 
     public FirstStepSp build(Map<String, Object> value, String routeName, Integer version) {
-        String name = "direct" + ":r:" + routeName + ":s:" + value.get("name") + ":v:" + version;
-        String subRouteReceiver = "direct" + ":r:" + routeName + ":s:" + value.get("subRouteReceiver") + ":v:" + version;
-        String mainRouteReceiver = "direct" + ":r:" + routeName + ":s:" + value.get("mainRouteReceiver") + ":v:" + version;
-        String processor = (String) value.get("processor");
-        ErrorHandler errorHandler = (ErrorHandler) value.getOrDefault("errorHandler", new ErrorHandler());
-        Long executionTimeToWait = (Long) value.getOrDefault("executionTimeToWait", EXECUTION_TIME_TO_WAIT);
+        String name = name(value, routeName, version);
+        String subRouteReceiver = subRouteReceiver(value, routeName, version);
+        String mainRouteReceiver = mainRouteReceiver(value, routeName, version);
+        String processor = processor(value);
+        ErrorHandler errorHandler = errorHandler(value);
+        Long executionTimeToWait = executionTimeToWait(value);
+        validate(name, subRouteReceiver, mainRouteReceiver, processor, errorHandler, executionTimeToWait);
         return new FirstStepSp(name, subRouteReceiver, mainRouteReceiver, processor, errorHandler, executionTimeToWait);
     }
 }

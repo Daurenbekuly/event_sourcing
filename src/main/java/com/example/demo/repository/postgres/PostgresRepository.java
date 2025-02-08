@@ -173,6 +173,21 @@ public class PostgresRepository {
         template.update(sql, sashokMap);
     }
 
+    public void forbidden(BaseModel baseModel) {
+        Map<String, Object> sashokMap = Map.of(
+                "id", baseModel.sashokId(),
+                "json_variable", baseModel.jsonValue(),
+                "end_date", LocalDateTime.now());
+        String sql = """
+                update sashok
+                set json_variable = :json_variable::JSONB,
+                    end_date = :end_date,
+                    status = 'FORBIDDEN'
+                where id = :id;
+                """;
+        template.update(sql, sashokMap);
+    }
+
     public void deactivateRoute(String name) {
         String sql = """
                 update route

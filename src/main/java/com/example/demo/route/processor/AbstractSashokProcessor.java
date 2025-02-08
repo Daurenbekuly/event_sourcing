@@ -1,6 +1,7 @@
 package com.example.demo.route.processor;
 
 import com.example.demo.common.CancelException;
+import com.example.demo.common.ForbiddenException;
 import com.example.demo.repository.postgres.PostgresRepository;
 import com.example.demo.route.model.BaseModel;
 import org.apache.camel.Exchange;
@@ -57,11 +58,16 @@ public abstract class AbstractSashokProcessor implements Processor {
         exchange.getIn().setBody(json);
     }
 
-    private String invoke(Exchange exchange, BaseModel baseModel) throws InterruptedException, ExecutionException, TimeoutException {
+    private String invoke(Exchange exchange, BaseModel baseModel) throws ExecutionException, InterruptedException {
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
         Future<String> future = executor.submit(() -> invoke(baseModel.jsonValue()));
         Long timeout = exchange.getIn().getHeader(TIMEOUT, Long.class);
-        return future.get(timeout, MILLISECONDS);
+        try {
+            return future.get(timeout, MILLISECONDS);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new ForbiddenException(e);
+        }
     }
 
     protected abstract String invoke(String jsonValue);
