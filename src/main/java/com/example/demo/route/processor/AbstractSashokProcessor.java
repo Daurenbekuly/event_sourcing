@@ -18,8 +18,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 
-import static com.example.demo.common.Constant.RECEIVER;
-import static com.example.demo.common.Constant.TIMEOUT;
+import static com.example.demo.common.Header.RECEIVER;
+import static com.example.demo.common.Header.TIMEOUT;
 import static com.example.demo.common.JsonUtil.toJsonOrElseThrow;
 import static com.example.demo.common.JsonUtil.toObjectOrElseThrow;
 import static java.util.Objects.isNull;
@@ -44,16 +44,16 @@ public abstract class AbstractSashokProcessor implements Processor {
         BaseModel baseModel = toObjectOrElseThrow(body, BaseModel.class);
         if (isCancelled(baseModel)) throw new CancelException("Cancelled!");
 
-        String receiverName = baseModel.receiverName();
-        if (isLastStep(receiverName)) return;
+        String stepName = baseModel.receiverName();
+        if (isLastStep(stepName)) return;
 
         UUID stepId = UUID.randomUUID();
         String receiver = exchange.getIn().getHeader(RECEIVER, String.class);
         String jsonValue = invoke(exchange, baseModel);
         Map<String, UUID> passedRoute = baseModel.passedRoute();
-        passedRoute.put(receiverName, stepId);
+        passedRoute.put(stepName, stepId);
 
-        BaseModel newBaseModel = new BaseModel(baseModel, stepId, receiver, jsonValue, passedRoute);
+        BaseModel newBaseModel = new BaseModel(baseModel, stepId, receiver, jsonValue);
         String json = toJsonOrElseThrow(newBaseModel);
         exchange.getIn().setBody(json);
     }

@@ -1,9 +1,6 @@
 package com.example.demo.route.model;
 
-import static com.example.demo.common.Constant.EXCEPTION_BACKOFF_MULTIPLIER;
-import static com.example.demo.common.Constant.EXCEPTION_HANDLER_PROCESSOR;
-import static com.example.demo.common.Constant.MAXIMUM_REDELIVERIES;
-import static com.example.demo.common.Constant.REDELIVERY_DELAY;
+import static com.example.demo.common.Constant.*;
 
 public record ErrorHandler(
         String exceptionHandler,
@@ -12,26 +9,9 @@ public record ErrorHandler(
         Long redeliveryDelay) {
 
     public ErrorHandler() {
-        this(getExceptionHandler(null),
-                getMaximumRedeliveries(null),
-                getExceptionBackOffMultiplier(null),
-                getRedeliveryDelay(null));
+        this(EXCEPTION_HANDLER_PROCESSOR,
+                MAX_REDELIVERY,
+                BACKOFF_MULTIPLIER,
+                REDELIVERY_DELAY);
     }
-
-    private static String getExceptionHandler(String exceptionHandler) {
-        return exceptionHandler != null ? exceptionHandler : EXCEPTION_HANDLER_PROCESSOR;
-    }
-
-    private static Integer getMaximumRedeliveries(Integer maximumRedeliveries) {
-        return maximumRedeliveries != null ? maximumRedeliveries : MAXIMUM_REDELIVERIES;
-    }
-
-    private static Double getExceptionBackOffMultiplier(Double exceptionBackOffMultiplier) {
-        return exceptionBackOffMultiplier != null ? exceptionBackOffMultiplier : EXCEPTION_BACKOFF_MULTIPLIER;
-    }
-
-    private static Long getRedeliveryDelay(Long redeliveryDelay) {
-        return redeliveryDelay != null ? redeliveryDelay : REDELIVERY_DELAY;
-    }
-
 }

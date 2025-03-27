@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
-
 @Service
 public class StepBeforeUtBuilder implements IStepBuilder {
 

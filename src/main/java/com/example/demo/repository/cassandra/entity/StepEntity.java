@@ -32,22 +32,6 @@ public class StepEntity {
     public StepEntity() {
     }
 
-    public StepEntity(UUID stepId,
-                      Long sashokId,
-                      String name,
-                      String receiverName,
-                      String jsonValue,
-                      Instant createDate,
-                      Stack<String> mainRouteSteps) {
-        this.stepId = stepId;
-        this.sashokId = sashokId;
-        this.name = name;
-        this.receiverName = receiverName;
-        this.jsonValue = jsonValue;
-        this.createDate = createDate;
-        this.mainRouteSteps = mainRouteSteps;
-    }
-
     public StepEntity(BaseModel baseModel) {
         this.stepId = baseModel.stepId();
         this.sashokId = baseModel.sashokId();

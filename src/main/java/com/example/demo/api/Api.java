@@ -9,6 +9,7 @@ import com.example.demo.route.builder.Components;
 import com.example.demo.route.builder.RouteBuilder;
 import com.example.demo.route.model.BaseModel;
 import com.example.demo.route.model.BuildRouteData;
+import com.example.demo.route.model.RetryData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.camel.ProducerTemplate;
 import org.apache.logging.log4j.LogManager;
@@ -93,7 +94,7 @@ public class Api {
     }
 
     @PostMapping("/retry/{stepId}")
-    public ResponseEntity<?> retry(@PathVariable UUID stepId) {
+    public ResponseEntity<?> retryStep(@PathVariable UUID stepId) {
         try {
             StepEntity stepEntity = cassandraRepository.findFirstByStepIdOrElseThrow(stepId);
             String passedRouteJson = postgresRepository.findPassedRouteByIdOrElseThrow(stepEntity.getSashokId());
@@ -162,4 +163,16 @@ public class Api {
         return new ResponseEntity<>(OK);
     }
 
+    @PostMapping("/retry")
+    public ResponseEntity<?> retry() {
+        try {
+            List<RetryData> retries = postgresRepository.findTop100ActiveRetries();
+            retries.forEach(retry -> template.asyncRequestBody(KAFKA_PATH_SASHOK, retry.json()));
+            postgresRepository.deactivateRetries(retries);
+            return new ResponseEntity<>(OK);
+        } catch (Exception e) {
+            log.error(e);
+            return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
+        }
+    }
 }

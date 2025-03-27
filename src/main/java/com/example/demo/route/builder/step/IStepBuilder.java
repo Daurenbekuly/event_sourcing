@@ -1,11 +1,11 @@
 package com.example.demo.route.builder.step;
 
+import com.example.demo.common.Constant;
 import com.example.demo.route.model.ErrorHandler;
 import com.example.demo.route.step.AbstractSashokStep;
 
 import java.util.Map;
 
-import static com.example.demo.common.Constant.EXECUTION_TIME_TO_WAIT;
 import static com.example.demo.common.JsonUtil.toTypeOrElseThrow;
 import static java.util.Objects.isNull;
 
@@ -47,7 +47,7 @@ public interface IStepBuilder {
     default Long executionTimeToWait(Map<String, Object> value) {
         var executionTimeToWait = value.get("executionTimeToWait");
         if (isNull(executionTimeToWait)) {
-            return EXECUTION_TIME_TO_WAIT;
+            return Constant.EXECUTION_TIME;
         } else {
             return toTypeOrElseThrow(executionTimeToWait, Long.class);
         }

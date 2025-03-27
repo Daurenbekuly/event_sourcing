@@ -5,7 +5,7 @@ import org.apache.camel.Exchange;
 
 import static com.example.demo.common.Constant.BACK_TO_MAIN_ROUTE_PROCESSOR;
 import static com.example.demo.common.Constant.LAST_STEP_PROCESSOR;
-import static com.example.demo.common.Constant.TIMEOUT;
+import static com.example.demo.common.Header.TIMEOUT;
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
 
 public class LastStepSp extends AbstractSashokStep {
@@ -23,14 +23,14 @@ public class LastStepSp extends AbstractSashokStep {
         this.redeliveryDelay = errorHandler.redeliveryDelay();
         this.exceptionHandler = errorHandler.exceptionHandler();
         this.maximumRedeliveries = errorHandler.maximumRedeliveries();
-        this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
-        this.executionTimeToWait = executionTimeToWait;
+        this.backOffMultiplier = errorHandler.exceptionBackOffMultiplier();
+        this.executionTime = executionTimeToWait;
     }
 
     @Override
     public void declareStep() {
         from(name)
-                .setHeader(TIMEOUT, constant(executionTimeToWait))
+                .setHeader(TIMEOUT, constant(executionTime))
                 .process(processor)
                 .process(BACK_TO_MAIN_ROUTE_PROCESSOR)
                 .choice()

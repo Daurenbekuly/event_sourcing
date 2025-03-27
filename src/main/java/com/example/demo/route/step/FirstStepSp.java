@@ -2,10 +2,10 @@ package com.example.demo.route.step;
 
 import com.example.demo.route.model.ErrorHandler;
 
-import static com.example.demo.common.Constant.MAIN_ROUTE_RECEIVER;
 import static com.example.demo.common.Constant.INIT_SUB_ROUTE_PROCESSOR;
-import static com.example.demo.common.Constant.RECEIVER;
-import static com.example.demo.common.Constant.TIMEOUT;
+import static com.example.demo.common.Header.MAIN_ROUTE_RECEIVER;
+import static com.example.demo.common.Header.RECEIVER;
+import static com.example.demo.common.Header.TIMEOUT;
 import static com.example.demo.common.KafkaPath.KAFKA_PATH_SASHOK;
 
 public class FirstStepSp extends AbstractSashokStep {
@@ -31,15 +31,15 @@ public class FirstStepSp extends AbstractSashokStep {
         this.redeliveryDelay = errorHandler.redeliveryDelay();
         this.exceptionHandler = errorHandler.exceptionHandler();
         this.maximumRedeliveries = errorHandler.maximumRedeliveries();
-        this.exceptionBackOffMultiplier = errorHandler.exceptionBackOffMultiplier();
-        this.executionTimeToWait = executionTimeToWait;
+        this.backOffMultiplier = errorHandler.exceptionBackOffMultiplier();
+        this.executionTime = executionTimeToWait;
     }
 
     @Override
     public void declareStep() {
         from(name)
                 .setHeader(RECEIVER, constant(subRouteReceiver))
-                .setHeader(TIMEOUT, constant(executionTimeToWait))
+                .setHeader(TIMEOUT, constant(executionTime))
                 .process(processor)
                 .setHeader(MAIN_ROUTE_RECEIVER, constant(mainRouteReceiver))
                 .process(INIT_SUB_ROUTE_PROCESSOR)

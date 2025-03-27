@@ -6,8 +6,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.stereotype.Service;
 
-import static com.example.demo.common.Constant.MAIN_ROUTE_RECEIVER;
-import static com.example.demo.common.Constant.RECEIVER;
+import static com.example.demo.common.Header.MAIN_ROUTE_RECEIVER;
+import static com.example.demo.common.Header.RECEIVER;
 import static com.example.demo.common.JsonUtil.toJsonOrElseThrow;
 import static com.example.demo.common.JsonUtil.toObjectOrElseThrow;
 

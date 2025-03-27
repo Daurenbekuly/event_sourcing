@@ -2,11 +2,14 @@ package com.example.demo.repository.postgres;
 
 import com.example.demo.route.model.BaseModel;
 import com.example.demo.route.model.BuildRouteData;
+import com.example.demo.route.model.RetryData;
 import com.example.demo.route.model.RouteData;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.example.demo.common.JsonUtil.toJsonOrElseThrow;
 import static java.util.Objects.isNull;
@@ -71,19 +75,21 @@ public class PostgresRepository {
 
         Map<String, Object> errorMessageMap = Map.of(
                 "sashok_id", baseModel.sashokId(),
+                "step_name", baseModel.receiverName(),
                 "message", exception.getMessage(),
                 "stack_trace", Arrays.toString(exception.getStackTrace()),
                 "create_date", LocalDateTime.now());
         String errorMessageSql = """
-                insert into error_message(id, sashok_id, message, stack_trace, create_date)
-                values (default, :sashok_id, :message, :stack_trace, :create_date);
+                insert into error_message(id, sashok_id, step_name, message, stack_trace, create_date)
+                values (default, :sashok_id, :step_name, :message, :stack_trace, :create_date);
                 """;
         template.update(errorMessageSql, errorMessageMap);
     }
 
-    public void retry(BaseModel baseModel) {
+    @Transactional
+    public void onRetry(BaseModel baseModel, LocalDateTime retryDate, Integer maxRetry) {
         String passedRoute = toJsonOrElseThrow(baseModel.passedRoute());
-        Map<String, Object> map = Map.of(
+        Map<String, Object> sashokMap = Map.of(
                 "id", baseModel.sashokId(),
                 "json_variable", baseModel.jsonValue(),
                 "passed_route", passedRoute);
@@ -94,7 +100,22 @@ public class PostgresRepository {
                     status = 'ON_RETRY'
                 where id = :id;
                 """;
-        template.update(sql, map);
+        template.update(sql, sashokMap);
+
+        String json = toJsonOrElseThrow(baseModel);
+        Map<String, Object> insertMap = Map.of(
+                "step_name", baseModel.receiverName(),
+                "sashok_id", baseModel.sashokId(),
+                "base_model", json,
+                "max", maxRetry,
+                "retry_date", retryDate,
+                "update_date", LocalDateTime.now(),
+                "create_date", LocalDateTime.now());
+        String insertSql = """
+                INSERT INTO retry (id, step_name, sashok_id, base_model, max, retry_date, update_date, create_date)
+                VALUES (DEFAULT, :step_name, :sashok_id, :base_model, :max, :retry_date, :update_date, :create_date)
+                """;
+        template.update(insertSql, insertMap);
     }
 
     public void success(BaseModel baseModel) {
@@ -254,5 +275,81 @@ public class PostgresRepository {
         Object firstStep = result.get("firstStep");
         Object version = result.get("version");
         return "direct" + ":r:" + routeName + ":s:" + firstStep + ":v:" + version;
+    }
+
+    public void updateRetry(BaseModel baseModel, LocalDateTime retryDate, Integer currentRetry, Integer maxRetry) {
+        Map<String, Object> map = Map.of(
+                "step_name", baseModel.receiverName(),
+                "sashok_id", baseModel.sashokId(),
+                "current", currentRetry,
+                "max", maxRetry,
+                "active_flag", true,
+                "retry_date", retryDate,
+                "update_date", LocalDateTime.now());
+        String sql = """
+                update retry
+                set current = :current,
+                    max = :max,
+                    active_flag = :active_flag,
+                    retry_date = :retry_date,
+                    update_date = :update_date
+                where step_name = :step_name
+                    and sashok_id = :sashok_id;
+                """;
+        template.update(sql, map);
+    }
+
+    public Integer retryCount(BaseModel baseModel) {
+        try {
+            Map<String, Object> map = Map.of(
+                    "step_name", baseModel.receiverName(),
+                    "sashok_id", baseModel.sashokId());
+            String sql = """
+                select retry.current
+                from retry
+                where step_name = :step_name
+                    and sashok_id = :sashok_id;
+                """;
+            Integer current = template.queryForObject(sql, map, Integer.class);
+            if (isNull(current)) current = 0;
+            return ++current;
+        } catch (EmptyResultDataAccessException e) {
+            return 1;
+        }
+    }
+
+    public List<RetryData> findTop100ActiveRetries() {
+        RowMapper<RetryData> rowMapper = (rs, rowMap) -> new RetryData(
+                rs.getLong("id"),
+                rs.getString("json")
+        );
+        String selectSql = """
+                select r.id         as id,
+                       r.base_model as json
+                from retry r
+                where r.active_flag = true
+                    and r.retry_date < :retry_date
+                order by r.update_date
+                limit 100;
+                """;
+        return template.query(selectSql, Map.of("retry_date", LocalDateTime.now()), rowMapper);
+    }
+
+    public void deactivateRetries(List<RetryData> retries) {
+        List<DeactivateRetry> candidates = retries.stream()
+                .map(retryData -> new DeactivateRetry(retryData))
+                .toList();
+        String sql = """
+                update retry
+                set active_flag = false
+                where id = :id;
+                """;
+        template.batchUpdate(sql, SqlParameterSourceUtils.createBatch(candidates));
+    }
+
+    private record DeactivateRetry(Long id) {
+        public DeactivateRetry(RetryData retryData) {
+            this(retryData.id());
+        }
     }
 }
